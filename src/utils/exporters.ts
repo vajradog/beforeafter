@@ -23,7 +23,6 @@ function dataUrlToBlob(dataUrl: string): Blob {
  */
 function canShareFiles(): boolean {
   if (!navigator.canShare) return false;
-  // Test with a dummy file to see if file sharing is supported
   try {
     const testFile = new File([new Uint8Array(1)], 'test.jpg', { type: 'image/jpeg' });
     return navigator.canShare({ files: [testFile] });
@@ -43,7 +42,6 @@ async function shareImageFile(blob: Blob, filename: string): Promise<boolean> {
     await navigator.share({ files: [file] });
     return true;
   } catch (err: any) {
-    // User cancelled the share sheet — not an error
     if (err?.name === 'AbortError') return true;
     return false;
   }
@@ -76,7 +74,6 @@ async function saveImage(blob: Blob, filename: string): Promise<void> {
 
 /**
  * Export a side-by-side JPEG comparison image.
- * On mobile, opens the share sheet so the user can save to their photo gallery.
  */
 export async function exportSideBySide(
   beforeDataUrl: string,
@@ -88,6 +85,17 @@ export async function exportSideBySide(
 }
 
 /**
+ * Export a single image (before or after individually).
+ */
+export async function exportSingleImage(
+  dataUrl: string,
+  filename: string
+): Promise<void> {
+  const blob = dataUrlToBlob(dataUrl);
+  await saveImage(blob, filename);
+}
+
+/**
  * Export a self-contained HTML file with an interactive slider.
  * The HTML contains embedded base64 images and inline CSS/JS.
  */
@@ -95,7 +103,6 @@ export async function exportHtmlSlider(
   beforeDataUrl: string,
   afterDataUrl: string
 ): Promise<void> {
-  // Strip the data URL prefix for embedding
   const beforeBase64 = beforeDataUrl;
   const afterBase64 = afterDataUrl;
 
@@ -138,9 +145,12 @@ export async function exportHtmlSlider(
       overflow: hidden;
     }
     .slider-overlay .slider-img {
-      width: auto;
-      min-width: 0;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
       height: 100%;
+      max-width: none;
     }
     .slider-handle {
       position: absolute;
@@ -257,4 +267,54 @@ export async function exportHtmlSlider(
 
   const blob = new Blob([html], { type: 'text/html' });
   downloadBlob(blob, 'before-after-slider.html');
+}
+
+/**
+ * Initialize the inline interactive slider on the export screen.
+ * This lets users see the comparison right in the app without downloading anything.
+ */
+export function initInlineSlider(container: HTMLElement, beforeSrc: string, afterSrc: string): void {
+  const afterImg = container.querySelector<HTMLImageElement>('.slider-after-img')!;
+  const beforeImg = container.querySelector<HTMLImageElement>('.slider-before-img')!;
+  const overlay = container.querySelector<HTMLElement>('.slider-overlay')!;
+  const handle = container.querySelector<HTMLElement>('.slider-handle')!;
+
+  afterImg.src = afterSrc;
+  beforeImg.src = beforeSrc;
+
+  let isDragging = false;
+
+  // The before image must always match the container's pixel width,
+  // NOT the overlay width. The overlay clips it — creating the reveal effect.
+  function matchSize() {
+    const w = container.offsetWidth;
+    beforeImg.style.width = w + 'px';
+  }
+
+  afterImg.addEventListener('load', matchSize);
+  window.addEventListener('resize', matchSize);
+  matchSize();
+
+  function updateSlider(clientX: number) {
+    const rect = container.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    handle.style.left = pct + '%';
+    overlay.style.width = pct + '%';
+  }
+
+  handle.addEventListener('mousedown', (e) => { isDragging = true; e.preventDefault(); });
+  handle.addEventListener('touchstart', () => { isDragging = true; }, { passive: true });
+
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) updateSlider(e.clientX);
+  });
+  document.addEventListener('touchmove', (e) => {
+    if (isDragging) { e.preventDefault(); updateSlider(e.touches[0].clientX); }
+  }, { passive: false });
+
+  document.addEventListener('mouseup', () => { isDragging = false; });
+  document.addEventListener('touchend', () => { isDragging = false; });
+
+  container.addEventListener('click', (e) => { updateSlider(e.clientX); });
 }
