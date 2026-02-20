@@ -63,36 +63,34 @@ const base = import.meta.env.BASE_URL;
     </div>
 
     <!-- ========== SCREEN 1: TAKE BEFORE PHOTO ========== -->
-    <div id="screen-before" class="fixed inset-0 flex flex-col bg-black hidden">
-      <!-- Camera viewfinder -->
-      <div class="flex-1 relative overflow-hidden">
-        <video id="video-before" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
+    <div id="screen-before" class="fixed inset-0 bg-black hidden">
+      <!-- Camera viewfinder (full screen) -->
+      <video id="video-before" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
 
-        <!-- Camera unavailable fallback -->
-        <div id="no-camera-before" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 hidden">
-          <div class="text-5xl mb-4">📷</div>
-          <p class="text-gray-400 text-lg mb-4">Camera not available</p>
-          <label class="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl cursor-pointer text-lg transition-colors">
-            Upload Before Photo
-            <input type="file" id="file-before" accept="image/*" capture="environment" class="hidden" />
-          </label>
-        </div>
-
-        <!-- Top status bar -->
-        <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent">
-          <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 1 of 2</span>
-        </div>
+      <!-- Camera unavailable fallback -->
+      <div id="no-camera-before" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 hidden z-10">
+        <div class="text-5xl mb-4">📷</div>
+        <p class="text-gray-400 text-lg mb-4">Camera not available</p>
+        <label class="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl cursor-pointer text-lg transition-colors">
+          Upload Before Photo
+          <input type="file" id="file-before" accept="image/*" capture="environment" class="hidden" />
+        </label>
       </div>
 
-      <!-- Bottom controls -->
-      <div class="bg-black p-6 pb-8 flex flex-col items-center gap-3">
+      <!-- Top status bar (overlay) -->
+      <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-20">
+        <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 1 of 2</span>
+      </div>
+
+      <!-- Bottom controls (overlay on viewfinder) -->
+      <div class="absolute bottom-0 left-0 right-0 px-4 py-4 pb-6 flex flex-col items-center gap-2 bg-gradient-to-t from-black/70 to-transparent z-20">
         <button
           id="btn-capture-before"
-          class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-xl font-bold py-5 rounded-2xl transition-colors active:scale-[0.97] transform"
+          class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-lg font-bold py-4 rounded-2xl transition-colors active:scale-[0.97] transform shadow-lg"
         >
           Take Before Photo
         </button>
-        <label class="text-gray-500 text-sm cursor-pointer hover:text-gray-300 transition-colors">
+        <label class="text-gray-300 text-xs cursor-pointer hover:text-white transition-colors">
           or upload from gallery
           <input type="file" id="file-before-alt" accept="image/*" class="hidden" />
         </label>
@@ -100,46 +98,44 @@ const base = import.meta.env.BASE_URL;
     </div>
 
     <!-- ========== SCREEN 2: TAKE AFTER PHOTO (ONION SKIN) ========== -->
-    <div id="screen-after" class="fixed inset-0 flex flex-col bg-black hidden">
-      <!-- Camera viewfinder with onion skin -->
-      <div class="flex-1 relative overflow-hidden">
-        <video id="video-after" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
+    <div id="screen-after" class="fixed inset-0 bg-black hidden">
+      <!-- Camera viewfinder (full screen) -->
+      <video id="video-after" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
 
-        <!-- Onion skin overlay (before photo) -->
-        <img
-          id="onion-skin"
-          class="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          alt=""
-          style="opacity: 0.4;"
-        />
+      <!-- Onion skin overlay (before photo) -->
+      <img
+        id="onion-skin"
+        class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        alt=""
+        style="opacity: 0.4;"
+      />
 
-        <!-- Camera unavailable fallback -->
-        <div id="no-camera-after" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 hidden">
-          <div class="text-5xl mb-4">📷</div>
-          <p class="text-gray-400 text-lg mb-4">Camera not available</p>
-          <label class="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl cursor-pointer text-lg transition-colors">
-            Upload After Photo
-            <input type="file" id="file-after" accept="image/*" capture="environment" class="hidden" />
-          </label>
-        </div>
-
-        <!-- Top status bar -->
-        <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent">
-          <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 2 of 2</span>
-          <button
-            id="btn-retake-before"
-            class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors"
-          >
-            ← Retake Before
-          </button>
-        </div>
+      <!-- Camera unavailable fallback -->
+      <div id="no-camera-after" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 hidden z-10">
+        <div class="text-5xl mb-4">📷</div>
+        <p class="text-gray-400 text-lg mb-4">Camera not available</p>
+        <label class="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl cursor-pointer text-lg transition-colors">
+          Upload After Photo
+          <input type="file" id="file-after" accept="image/*" capture="environment" class="hidden" />
+        </label>
       </div>
 
-      <!-- Bottom controls: opacity slider + capture button -->
-      <div class="bg-black p-6 pb-8 flex flex-col items-center gap-4">
+      <!-- Top status bar (overlay) -->
+      <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-20">
+        <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 2 of 2</span>
+        <button
+          id="btn-retake-before"
+          class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors"
+        >
+          ← Retake Before
+        </button>
+      </div>
+
+      <!-- Bottom controls: opacity slider + capture button (overlay on viewfinder) -->
+      <div class="absolute bottom-0 left-0 right-0 px-4 py-3 pb-5 flex flex-col items-center gap-2 bg-gradient-to-t from-black/80 via-black/50 to-transparent z-20">
         <!-- Opacity slider -->
         <div class="w-full max-w-sm">
-          <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <div class="flex items-center justify-between text-xs text-gray-300 mb-1">
             <span>Live view</span>
             <span id="opacity-label" class="font-mono text-white">40%</span>
             <span>Before overlay</span>
@@ -156,11 +152,11 @@ const base = import.meta.env.BASE_URL;
 
         <button
           id="btn-capture-after"
-          class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-xl font-bold py-5 rounded-2xl transition-colors active:scale-[0.97] transform"
+          class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-lg font-bold py-4 rounded-2xl transition-colors active:scale-[0.97] transform shadow-lg"
         >
           Take After Photo
         </button>
-        <label class="text-gray-500 text-sm cursor-pointer hover:text-gray-300 transition-colors">
+        <label class="text-gray-300 text-xs cursor-pointer hover:text-white transition-colors">
           or upload from gallery
           <input type="file" id="file-after-alt" accept="image/*" class="hidden" />
         </label>
@@ -174,7 +170,7 @@ const base = import.meta.env.BASE_URL;
         <!-- Interactive slider preview (THE MAIN EVENT) -->
         <div>
           <p class="text-xs text-gray-500 text-center mb-2 font-semibold uppercase tracking-wide">Drag to compare</p>
-          <div id="inline-slider" class="relative w-full rounded-2xl overflow-hidden bg-black select-none touch-none" style="line-height:0;">
+          <div id="inline-slider" class="relative w-full rounded-2xl overflow-hidden bg-black select-none" style="line-height:0; max-height:55vh;">
             <img class="slider-after-img block w-full h-auto" alt="After" draggable="false" />
             <div class="slider-overlay absolute top-0 left-0 w-1/2 h-full overflow-hidden">
               <img class="slider-before-img absolute top-0 left-0 block h-full" alt="Before" draggable="false" style="max-width:none;" />

@@ -284,11 +284,18 @@ export function initInlineSlider(container: HTMLElement, beforeSrc: string, afte
 
   let isDragging = false;
 
-  // The before image must always match the container's pixel width,
+  // Allow vertical scrolling on the container, only capture horizontal drag on handle
+  container.style.touchAction = 'pan-y';
+  handle.style.touchAction = 'none';
+
+  // The before image must always match the after image's rendered width,
   // NOT the overlay width. The overlay clips it — creating the reveal effect.
   function matchSize() {
-    const w = container.offsetWidth;
+    const w = afterImg.offsetWidth;
+    const h = afterImg.offsetHeight;
     beforeImg.style.width = w + 'px';
+    beforeImg.style.height = h + 'px';
+    overlay.style.height = h + 'px';
   }
 
   afterImg.addEventListener('load', matchSize);

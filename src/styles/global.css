@@ -13,6 +13,11 @@ html, body {
   overscroll-behavior: none;
 }
 
+/* Enable smooth scrolling on scrollable screens */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Camera video should fill container */
 video {
   object-fit: cover;
