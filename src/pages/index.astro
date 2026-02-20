@@ -329,6 +329,12 @@ const base = import.meta.env.BASE_URL;
 
     <!-- ========== FULLSCREEN SLIDER OVERLAY ========== -->
     <div id="fullscreen-slider" class="fixed inset-0 bg-black z-[100] hidden" style="touch-action:none;">
+      <!-- Close button — always visible, top-right -->
+      <button class="fs-close-btn absolute top-4 right-4 z-30 w-12 h-12 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
       <div class="fs-wrapper absolute overflow-hidden" style="line-height:0;">
         <img class="fs-after-img block" alt="After" draggable="false" />
         <div class="fs-overlay absolute top-0 left-0 w-1/2 h-full overflow-hidden">
@@ -343,10 +349,6 @@ const base = import.meta.env.BASE_URL;
         </div>
         <div class="fs-label-before absolute top-4 left-4 px-4 py-2 bg-black/60 text-white text-sm font-bold rounded-lg uppercase tracking-wide backdrop-blur-sm transition-opacity duration-500">Before</div>
         <div class="fs-label-after absolute top-4 right-4 px-4 py-2 bg-black/60 text-white text-sm font-bold rounded-lg uppercase tracking-wide backdrop-blur-sm transition-opacity duration-500">After</div>
-      </div>
-      <!-- Tap to close hint -->
-      <div class="absolute bottom-6 left-0 right-0 text-center pointer-events-none">
-        <span class="text-white/40 text-xs font-medium">Tap anywhere to close</span>
       </div>
     </div>
 

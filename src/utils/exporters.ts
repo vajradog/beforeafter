@@ -449,24 +449,38 @@ export function initFullscreenSlider(
   }
   showLabels();
 
-  // Tap anywhere (not on handle) to close
-  container.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    // If they clicked the handle or are dragging, don't close
-    if (target.closest('.fs-handle')) return;
-    // Clean up event listeners
+  function cleanup() {
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('touchmove', onTouchMove);
     document.removeEventListener('mouseup', onUp);
     document.removeEventListener('touchend', onUp);
     clearTimeout(labelTimer);
     onClose();
+  }
+
+  // Close button (top-right X)
+  const closeBtn = container.querySelector<HTMLElement>('.fs-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cleanup();
+    });
+  }
+
+  // Tap the black bars (outside the image) to close
+  container.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    // Only close if they tapped the container background itself (black bars)
+    if (target === container) {
+      cleanup();
+    }
   });
 
-  // Also allow clicking the wrapper to move the slider (not close)
+  // Clicking inside the wrapper moves the slider
   const wrapper = container.querySelector<HTMLElement>('.fs-wrapper')!;
   wrapper.addEventListener('click', (e) => {
-    e.stopPropagation(); // Don't trigger close
+    const target = e.target as HTMLElement;
+    if (target.closest('.fs-handle')) return;
     updateSlider(e.clientX);
     showLabels();
   });
