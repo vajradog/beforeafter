@@ -5,6 +5,7 @@
  */
 
 import { createSideBySide } from './imageProcessing';
+import type { SideBySideOptions } from './imageProcessing';
 
 /**
  * Convert a data URL to a Blob.
@@ -74,12 +75,14 @@ async function saveImage(blob: Blob, filename: string): Promise<void> {
 
 /**
  * Export a side-by-side JPEG comparison image.
+ * Accepts optional watermark/date options.
  */
 export async function exportSideBySide(
   beforeDataUrl: string,
-  afterDataUrl: string
+  afterDataUrl: string,
+  options?: SideBySideOptions
 ): Promise<void> {
-  const result = await createSideBySide(beforeDataUrl, afterDataUrl);
+  const result = await createSideBySide(beforeDataUrl, afterDataUrl, options);
   const blob = dataUrlToBlob(result);
   await saveImage(blob, 'before-after.jpg');
 }
@@ -293,7 +296,9 @@ export function initInlineSlider(container: HTMLElement, beforeSrc: string, afte
   function matchSize() {
     if (!afterImg.naturalWidth || !afterImg.naturalHeight) return;
 
-    const containerW = container.offsetWidth;
+    // Reset container width so it can reflow to parent
+    container.style.width = '';
+    const containerW = container.parentElement?.offsetWidth || container.offsetWidth;
     const maxH = window.innerHeight * 0.55;
     const aspect = afterImg.naturalWidth / afterImg.naturalHeight;
 
@@ -314,6 +319,7 @@ export function initInlineSlider(container: HTMLElement, beforeSrc: string, afte
     beforeImg.style.height = h + 'px';
     overlay.style.height = h + 'px';
     container.style.height = h + 'px';
+    container.style.width = w + 'px';
   }
 
   afterImg.addEventListener('load', matchSize);
@@ -346,4 +352,122 @@ export function initInlineSlider(container: HTMLElement, beforeSrc: string, afte
   document.addEventListener('touchend', () => { isDragging = false; });
 
   container.addEventListener('click', (e) => { updateSlider(e.clientX); });
+}
+
+/**
+ * Initialize the fullscreen slider overlay.
+ * Reuses the same reveal-clip pattern as the inline slider.
+ */
+export function initFullscreenSlider(
+  container: HTMLElement,
+  beforeSrc: string,
+  afterSrc: string,
+  onClose: () => void
+): void {
+  const afterImg = container.querySelector<HTMLImageElement>('.fs-after-img')!;
+  const beforeImg = container.querySelector<HTMLImageElement>('.fs-before-img')!;
+  const overlay = container.querySelector<HTMLElement>('.fs-overlay')!;
+  const handle = container.querySelector<HTMLElement>('.fs-handle')!;
+  const labelBefore = container.querySelector<HTMLElement>('.fs-label-before')!;
+  const labelAfter = container.querySelector<HTMLElement>('.fs-label-after')!;
+
+  afterImg.src = afterSrc;
+  beforeImg.src = beforeSrc;
+
+  let isDragging = false;
+
+  function matchSize() {
+    if (!afterImg.naturalWidth || !afterImg.naturalHeight) return;
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const aspect = afterImg.naturalWidth / afterImg.naturalHeight;
+
+    // Fit image to viewport while maintaining aspect ratio
+    let w = vw;
+    let h = w / aspect;
+    if (h > vh) {
+      h = vh;
+      w = h * aspect;
+    }
+
+    // Center in viewport
+    const left = (vw - w) / 2;
+    const top = (vh - h) / 2;
+
+    const wrapper = container.querySelector<HTMLElement>('.fs-wrapper')!;
+    wrapper.style.width = w + 'px';
+    wrapper.style.height = h + 'px';
+    wrapper.style.left = left + 'px';
+    wrapper.style.top = top + 'px';
+
+    afterImg.style.width = w + 'px';
+    afterImg.style.height = h + 'px';
+    beforeImg.style.width = w + 'px';
+    beforeImg.style.height = h + 'px';
+    overlay.style.height = h + 'px';
+  }
+
+  afterImg.addEventListener('load', matchSize);
+  window.addEventListener('resize', matchSize);
+  window.addEventListener('orientationchange', () => setTimeout(matchSize, 150));
+  matchSize();
+
+  function updateSlider(clientX: number) {
+    const wrapper = container.querySelector<HTMLElement>('.fs-wrapper')!;
+    const rect = wrapper.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    handle.style.left = pct + '%';
+    overlay.style.width = pct + '%';
+  }
+
+  handle.addEventListener('mousedown', (e) => { isDragging = true; e.preventDefault(); });
+  handle.addEventListener('touchstart', () => { isDragging = true; }, { passive: true });
+
+  const onMove = (e: MouseEvent) => { if (isDragging) updateSlider(e.clientX); };
+  const onTouchMove = (e: TouchEvent) => {
+    if (isDragging) { e.preventDefault(); updateSlider(e.touches[0].clientX); }
+  };
+  const onUp = () => { isDragging = false; };
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onTouchMove, { passive: false });
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchend', onUp);
+
+  // Auto-hide labels after 2 seconds
+  let labelTimer: ReturnType<typeof setTimeout>;
+  function showLabels() {
+    labelBefore.style.opacity = '1';
+    labelAfter.style.opacity = '1';
+    clearTimeout(labelTimer);
+    labelTimer = setTimeout(() => {
+      labelBefore.style.opacity = '0';
+      labelAfter.style.opacity = '0';
+    }, 2000);
+  }
+  showLabels();
+
+  // Tap anywhere (not on handle) to close
+  container.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    // If they clicked the handle or are dragging, don't close
+    if (target.closest('.fs-handle')) return;
+    // Clean up event listeners
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchend', onUp);
+    clearTimeout(labelTimer);
+    onClose();
+  });
+
+  // Also allow clicking the wrapper to move the slider (not close)
+  const wrapper = container.querySelector<HTMLElement>('.fs-wrapper')!;
+  wrapper.addEventListener('click', (e) => {
+    e.stopPropagation(); // Don't trigger close
+    updateSlider(e.clientX);
+    showLabels();
+  });
 }

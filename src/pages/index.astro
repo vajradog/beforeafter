@@ -121,14 +121,20 @@ const base = import.meta.env.BASE_URL;
       </div>
 
       <!-- Top status bar (overlay) -->
-      <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-20">
-        <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 2 of 2</span>
-        <button
-          id="btn-retake-before"
-          class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors"
-        >
-          ← Retake Before
-        </button>
+      <div class="absolute top-0 left-0 right-0 p-4 flex flex-col gap-2 bg-gradient-to-b from-black/60 to-transparent z-20">
+        <div class="flex items-center justify-between">
+          <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 2 of 2</span>
+          <button
+            id="btn-retake-before"
+            class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors"
+          >
+            ← Retake Before
+          </button>
+        </div>
+        <!-- Alignment coaching hint — auto-fades -->
+        <div id="align-hint" class="bg-black/70 text-white text-sm text-center py-2.5 px-4 rounded-xl backdrop-blur-sm transition-opacity duration-700">
+          Line up the ghost image with your camera, then shoot!
+        </div>
       </div>
 
       <!-- Bottom controls: opacity slider + capture button (overlay on viewfinder) -->
@@ -169,8 +175,8 @@ const base = import.meta.env.BASE_URL;
 
         <!-- Interactive slider preview (THE MAIN EVENT) -->
         <div>
-          <p class="text-xs text-gray-500 text-center mb-2 font-semibold uppercase tracking-wide">Drag to compare</p>
-          <div id="inline-slider" class="relative w-full rounded-2xl overflow-hidden bg-black select-none" style="line-height:0;">
+          <p class="text-xs text-gray-500 text-center mb-2 font-semibold uppercase tracking-wide">Drag to compare &middot; Tap for fullscreen</p>
+          <div id="inline-slider" class="relative w-full rounded-2xl overflow-hidden bg-black select-none cursor-pointer mx-auto" style="line-height:0;">
             <img class="slider-after-img block" alt="After" draggable="false" />
             <div class="slider-overlay absolute top-0 left-0 w-1/2 h-full overflow-hidden">
               <img class="slider-before-img absolute top-0 left-0 block" alt="Before" draggable="false" style="max-width:none;" />
@@ -184,6 +190,12 @@ const base = import.meta.env.BASE_URL;
             </div>
             <div class="absolute top-3 left-3 px-3 py-1.5 bg-black/60 text-white text-xs font-bold rounded-md uppercase tracking-wide backdrop-blur-sm">Before</div>
             <div class="absolute top-3 right-3 px-3 py-1.5 bg-black/60 text-white text-xs font-bold rounded-md uppercase tracking-wide backdrop-blur-sm">After</div>
+            <!-- Fullscreen hint icon -->
+            <div class="absolute bottom-3 right-3 w-8 h-8 bg-black/50 rounded-lg flex items-center justify-center backdrop-blur-sm">
+              <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+              </svg>
+            </div>
           </div>
         </div>
 
@@ -222,6 +234,37 @@ const base = import.meta.env.BASE_URL;
                 Save After
               </div>
             </button>
+          </div>
+        </div>
+
+        <!-- Pro options: Watermark + Dates -->
+        <div>
+          <h3 class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-2">Pro Options</h3>
+          <div class="space-y-3">
+            <!-- Watermark input -->
+            <div class="bg-white/5 rounded-2xl p-4">
+              <label for="watermark-input" class="block text-sm font-semibold text-gray-300 mb-2">Business watermark</label>
+              <input
+                type="text"
+                id="watermark-input"
+                placeholder="e.g. Mike's Handyman • 555-1234"
+                maxlength="60"
+                class="w-full bg-white/10 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#0066FF]/50 border border-white/10 focus:border-[#0066FF]/50 transition-all"
+              />
+              <p class="text-xs text-gray-500 mt-1.5">Appears on side-by-side exports. Saved for next time.</p>
+            </div>
+
+            <!-- Date stamps toggle -->
+            <label class="flex items-center justify-between bg-white/5 rounded-2xl p-4 cursor-pointer">
+              <div>
+                <div class="text-sm font-semibold text-gray-300">Date stamps</div>
+                <div class="text-xs text-gray-500">Shows capture date on BEFORE/AFTER labels</div>
+              </div>
+              <div class="relative">
+                <input type="checkbox" id="toggle-dates" class="sr-only peer" checked />
+                <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-400 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0066FF] peer-checked:after:bg-white"></div>
+              </div>
+            </label>
           </div>
         </div>
 
@@ -284,21 +327,47 @@ const base = import.meta.env.BASE_URL;
       </div>
     </div>
 
+    <!-- ========== FULLSCREEN SLIDER OVERLAY ========== -->
+    <div id="fullscreen-slider" class="fixed inset-0 bg-black z-[100] hidden" style="touch-action:none;">
+      <div class="fs-wrapper absolute overflow-hidden" style="line-height:0;">
+        <img class="fs-after-img block" alt="After" draggable="false" />
+        <div class="fs-overlay absolute top-0 left-0 w-1/2 h-full overflow-hidden">
+          <img class="fs-before-img absolute top-0 left-0 block" alt="Before" draggable="false" style="max-width:none;" />
+        </div>
+        <div class="fs-handle absolute top-0 bottom-0 left-1/2 w-1 -ml-0.5 bg-white cursor-ew-resize z-10" style="box-shadow:0 0 12px rgba(0,0,0,0.6);">
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l-3 3 3 3M16 9l3 3-3 3" />
+            </svg>
+          </div>
+        </div>
+        <div class="fs-label-before absolute top-4 left-4 px-4 py-2 bg-black/60 text-white text-sm font-bold rounded-lg uppercase tracking-wide backdrop-blur-sm transition-opacity duration-500">Before</div>
+        <div class="fs-label-after absolute top-4 right-4 px-4 py-2 bg-black/60 text-white text-sm font-bold rounded-lg uppercase tracking-wide backdrop-blur-sm transition-opacity duration-500">After</div>
+      </div>
+      <!-- Tap to close hint -->
+      <div class="absolute bottom-6 left-0 right-0 text-center pointer-events-none">
+        <span class="text-white/40 text-xs font-medium">Tap anywhere to close</span>
+      </div>
+    </div>
+
     <script>
       import { startCamera, stopCamera, captureFrame, hasCameraSupport } from '../utils/camera';
       import { resizeImage } from '../utils/imageProcessing';
-      import { exportSideBySide, exportSingleImage, exportHtmlSlider, initInlineSlider } from '../utils/exporters';
+      import { exportSideBySide, exportSingleImage, exportHtmlSlider, initInlineSlider, initFullscreenSlider } from '../utils/exporters';
 
       // ---- State ----
       let beforeDataUrl: string | null = null;
       let afterDataUrl: string | null = null;
       let currentStream: MediaStream | null = null;
+      let beforeTimestamp: Date | null = null;
+      let afterTimestamp: Date | null = null;
 
       // ---- DOM refs ----
       const screenLanding = document.getElementById('screen-landing')!;
       const screenBefore = document.getElementById('screen-before')!;
       const screenAfter = document.getElementById('screen-after')!;
       const screenExport = document.getElementById('screen-export')!;
+      const fullscreenSlider = document.getElementById('fullscreen-slider')!;
 
       const videoBefore = document.getElementById('video-before') as HTMLVideoElement;
       const videoAfter = document.getElementById('video-after') as HTMLVideoElement;
@@ -313,6 +382,18 @@ const base = import.meta.env.BASE_URL;
       const previewAfter = document.getElementById('preview-after') as HTMLImageElement;
       const exportStatus = document.getElementById('export-status')!;
       const inlineSlider = document.getElementById('inline-slider')!;
+
+      const watermarkInput = document.getElementById('watermark-input') as HTMLInputElement;
+      const toggleDates = document.getElementById('toggle-dates') as HTMLInputElement;
+
+      // ---- Load saved watermark from localStorage ----
+      const savedWatermark = localStorage.getItem('ba-watermark');
+      if (savedWatermark) watermarkInput.value = savedWatermark;
+
+      // Save watermark on change
+      watermarkInput.addEventListener('input', () => {
+        localStorage.setItem('ba-watermark', watermarkInput.value);
+      });
 
       // ---- Screen management ----
       function showScreen(screen: HTMLElement) {
@@ -368,6 +449,7 @@ const base = import.meta.env.BASE_URL;
         if (!videoBefore.srcObject) return;
         const raw = captureFrame(videoBefore);
         beforeDataUrl = await resizeImage(raw, 1920);
+        beforeTimestamp = new Date();
         closeCamera();
         goToAfterScreen();
       });
@@ -378,6 +460,7 @@ const base = import.meta.env.BASE_URL;
           try {
             const raw = await handleFileUpload(e.target as HTMLInputElement);
             beforeDataUrl = await resizeImage(raw, 1920);
+            beforeTimestamp = new Date();
             closeCamera();
             goToAfterScreen();
           } catch { /* user cancelled */ }
@@ -391,6 +474,11 @@ const base = import.meta.env.BASE_URL;
           onionSkin.src = beforeDataUrl;
           onionSkin.classList.remove('hidden');
         }
+        // Show alignment hint, fade after 4 seconds
+        const hint = document.getElementById('align-hint')!;
+        hint.style.opacity = '1';
+        setTimeout(() => { hint.style.opacity = '0'; }, 4000);
+
         await openCamera(videoAfter, noCameraAfter);
       }
 
@@ -407,6 +495,7 @@ const base = import.meta.env.BASE_URL;
         if (!videoAfter.srcObject) return;
         const raw = captureFrame(videoAfter);
         afterDataUrl = await resizeImage(raw, 1920);
+        afterTimestamp = new Date();
         closeCamera();
         goToExportScreen();
       });
@@ -417,6 +506,7 @@ const base = import.meta.env.BASE_URL;
           try {
             const raw = await handleFileUpload(e.target as HTMLInputElement);
             afterDataUrl = await resizeImage(raw, 1920);
+            afterTimestamp = new Date();
             closeCamera();
             goToExportScreen();
           } catch { /* user cancelled */ }
@@ -426,6 +516,7 @@ const base = import.meta.env.BASE_URL;
       // Retake before
       document.getElementById('btn-retake-before')!.addEventListener('click', async () => {
         beforeDataUrl = null;
+        beforeTimestamp = null;
         closeCamera();
         showScreen(screenBefore);
         await openCamera(videoBefore, noCameraBefore);
@@ -457,6 +548,16 @@ const base = import.meta.env.BASE_URL;
         }
       }
 
+      // Get current export options
+      function getExportOptions() {
+        return {
+          watermark: watermarkInput.value,
+          beforeDate: beforeTimestamp,
+          afterDate: afterTimestamp,
+          showDates: toggleDates.checked,
+        };
+      }
+
       // Save individual before photo
       document.getElementById('btn-save-before')!.addEventListener('click', () => {
         if (!beforeDataUrl) return;
@@ -469,10 +570,12 @@ const base = import.meta.env.BASE_URL;
         withButton('btn-save-after', () => exportSingleImage(afterDataUrl!, 'after.jpg'));
       });
 
-      // Side-by-side comparison
+      // Side-by-side comparison (with watermark + dates)
       document.getElementById('btn-export-sidebyside')!.addEventListener('click', () => {
         if (!beforeDataUrl || !afterDataUrl) return;
-        withButton('btn-export-sidebyside', () => exportSideBySide(beforeDataUrl!, afterDataUrl!));
+        withButton('btn-export-sidebyside', () =>
+          exportSideBySide(beforeDataUrl!, afterDataUrl!, getExportOptions())
+        );
       });
 
       // HTML slider file (for website embed)
@@ -486,10 +589,63 @@ const base = import.meta.env.BASE_URL;
         setTimeout(() => exportStatus.classList.add('hidden'), 4000);
       }
 
+      // ---- Fullscreen slider ----
+      // Double-tap or tap the expand icon on the inline slider to go fullscreen
+      let lastTapTime = 0;
+      inlineSlider.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        // If they clicked the slider handle, don't open fullscreen
+        if (target.closest('.slider-handle')) return;
+
+        const now = Date.now();
+        const isDoubleTap = (now - lastTapTime) < 350;
+        const isExpandIcon = target.closest('[class*="bottom-3 right-3"]');
+
+        if (isDoubleTap || isExpandIcon) {
+          openFullscreen();
+        }
+        lastTapTime = now;
+      });
+
+      function openFullscreen() {
+        if (!beforeDataUrl || !afterDataUrl) return;
+        fullscreenSlider.classList.remove('hidden');
+
+        // Try native Fullscreen API
+        if (fullscreenSlider.requestFullscreen) {
+          fullscreenSlider.requestFullscreen().catch(() => {});
+        }
+
+        initFullscreenSlider(fullscreenSlider, beforeDataUrl, afterDataUrl, closeFullscreen);
+      }
+
+      function closeFullscreen() {
+        fullscreenSlider.classList.add('hidden');
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+
+      // Also close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !fullscreenSlider.classList.contains('hidden')) {
+          closeFullscreen();
+        }
+      });
+
+      // Close when exiting fullscreen via browser gesture
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement && !fullscreenSlider.classList.contains('hidden')) {
+          fullscreenSlider.classList.add('hidden');
+        }
+      });
+
       // Start over
       document.getElementById('btn-start-over')!.addEventListener('click', () => {
         beforeDataUrl = null;
         afterDataUrl = null;
+        beforeTimestamp = null;
+        afterTimestamp = null;
         closeCamera();
         previewBefore.src = '';
         previewAfter.src = '';
