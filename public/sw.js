@@ -1,5 +1,5 @@
 const CACHE_NAME = 'ba-pro-v1';
-const BASE = '/BeforeAfter/';
+const BASE = '/beforeafter/';
 
 const PRECACHE_URLS = [
   BASE,
