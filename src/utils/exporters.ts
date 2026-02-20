@@ -1,24 +1,56 @@
 /**
  * Export utilities for Before/After Pro.
  * Generates downloadable files entirely client-side.
+ * Uses Web Share API on mobile to save images directly to the photo gallery.
  */
 
 import { createSideBySide } from './imageProcessing';
 
 /**
- * Trigger a browser download of a data URL.
+ * Convert a data URL to a Blob.
  */
-function downloadDataUrl(dataUrl: string, filename: string): void {
-  const link = document.createElement('a');
-  link.download = filename;
-  link.href = dataUrl;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, base64] = dataUrl.split(',');
+  const mime = header.match(/:(.*?);/)?.[1] || 'image/jpeg';
+  const bytes = atob(base64);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  return new Blob([arr], { type: mime });
 }
 
 /**
- * Trigger a browser download of a Blob.
+ * Check if the device supports sharing files via the Web Share API.
+ */
+function canShareFiles(): boolean {
+  if (!navigator.canShare) return false;
+  // Test with a dummy file to see if file sharing is supported
+  try {
+    const testFile = new File([new Uint8Array(1)], 'test.jpg', { type: 'image/jpeg' });
+    return navigator.canShare({ files: [testFile] });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Share an image file via the native share sheet (saves to Photos on mobile).
+ * Returns true if shared successfully, false if cancelled or unsupported.
+ */
+async function shareImageFile(blob: Blob, filename: string): Promise<boolean> {
+  if (!canShareFiles()) return false;
+  try {
+    const file = new File([blob], filename, { type: blob.type });
+    await navigator.share({ files: [file] });
+    return true;
+  } catch (err: any) {
+    // User cancelled the share sheet — not an error
+    if (err?.name === 'AbortError') return true;
+    return false;
+  }
+}
+
+/**
+ * Trigger a browser download of a Blob (fallback for desktop).
  */
 function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
@@ -32,14 +64,27 @@ function downloadBlob(blob: Blob, filename: string): void {
 }
 
 /**
+ * Save an image: uses Web Share API on mobile (so it goes to Photos),
+ * falls back to download on desktop.
+ */
+async function saveImage(blob: Blob, filename: string): Promise<void> {
+  const shared = await shareImageFile(blob, filename);
+  if (!shared) {
+    downloadBlob(blob, filename);
+  }
+}
+
+/**
  * Export a side-by-side JPEG comparison image.
+ * On mobile, opens the share sheet so the user can save to their photo gallery.
  */
 export async function exportSideBySide(
   beforeDataUrl: string,
   afterDataUrl: string
 ): Promise<void> {
   const result = await createSideBySide(beforeDataUrl, afterDataUrl);
-  downloadDataUrl(result, 'before-after.jpg');
+  const blob = dataUrlToBlob(result);
+  await saveImage(blob, 'before-after.jpg');
 }
 
 /**
