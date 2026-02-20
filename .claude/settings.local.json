@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create astro@latest:*)",
+      "Bash(npm install:*)",
+      "Bash(npx astro add:*)",
+      "Bash(npm run build:*)",
+      "Bash(node -e:*)",
+      "Bash(pkill:*)"
+    ]
+  }
+}

@@ -1,0 +1,215 @@
+/**
+ * Export utilities for Before/After Pro.
+ * Generates downloadable files entirely client-side.
+ */
+
+import { createSideBySide } from './imageProcessing';
+
+/**
+ * Trigger a browser download of a data URL.
+ */
+function downloadDataUrl(dataUrl: string, filename: string): void {
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = dataUrl;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/**
+ * Trigger a browser download of a Blob.
+ */
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = url;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Export a side-by-side JPEG comparison image.
+ */
+export async function exportSideBySide(
+  beforeDataUrl: string,
+  afterDataUrl: string
+): Promise<void> {
+  const result = await createSideBySide(beforeDataUrl, afterDataUrl);
+  downloadDataUrl(result, 'before-after.jpg');
+}
+
+/**
+ * Export a self-contained HTML file with an interactive slider.
+ * The HTML contains embedded base64 images and inline CSS/JS.
+ */
+export async function exportHtmlSlider(
+  beforeDataUrl: string,
+  afterDataUrl: string
+): Promise<void> {
+  // Strip the data URL prefix for embedding
+  const beforeBase64 = beforeDataUrl;
+  const afterBase64 = afterDataUrl;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before &amp; After Comparison</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a1a;
+      font-family: Arial, sans-serif;
+    }
+    .slider-container {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow: hidden;
+      line-height: 0;
+    }
+    .slider-img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .slider-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .slider-overlay .slider-img {
+      width: auto;
+      min-width: 0;
+      height: 100%;
+    }
+    .slider-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      margin-left: -2px;
+      background: #fff;
+      cursor: ew-resize;
+      z-index: 10;
+      box-shadow: 0 0 8px rgba(0,0,0,0.5);
+    }
+    .slider-handle::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+    .slider-handle::after {
+      content: '\\2194';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      color: #333;
+      z-index: 1;
+    }
+    .label {
+      position: absolute;
+      top: 16px;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      font: bold 14px Arial, sans-serif;
+      border-radius: 6px;
+      z-index: 5;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .label-before { left: 16px; }
+    .label-after { right: 16px; }
+    .credit {
+      position: fixed;
+      bottom: 8px;
+      right: 12px;
+      font-size: 11px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="slider-container" id="container">
+    <img class="slider-img" id="afterImg" src="${afterBase64}" alt="After" draggable="false">
+    <div class="slider-overlay" id="overlay">
+      <img class="slider-img" id="beforeImg" src="${beforeBase64}" alt="Before" draggable="false">
+    </div>
+    <div class="slider-handle" id="handle"></div>
+    <div class="label label-before">Before</div>
+    <div class="label label-after">After</div>
+  </div>
+  <div class="credit">Before/After Pro</div>
+  <script>
+    (function() {
+      var handle = document.getElementById('handle');
+      var overlay = document.getElementById('overlay');
+      var container = document.getElementById('container');
+      var beforeImg = document.getElementById('beforeImg');
+      var afterImg = document.getElementById('afterImg');
+      var isDragging = false;
+
+      function matchSize() {
+        beforeImg.style.width = afterImg.offsetWidth + 'px';
+        beforeImg.style.height = afterImg.offsetHeight + 'px';
+      }
+
+      function updateSlider(clientX) {
+        var rect = container.getBoundingClientRect();
+        var x = clientX - rect.left;
+        var pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
+        handle.style.left = pct + '%';
+        overlay.style.width = pct + '%';
+      }
+
+      afterImg.addEventListener('load', matchSize);
+      window.addEventListener('resize', matchSize);
+      matchSize();
+
+      handle.addEventListener('mousedown', function(e) { isDragging = true; e.preventDefault(); });
+      handle.addEventListener('touchstart', function(e) { isDragging = true; }, { passive: true });
+
+      document.addEventListener('mousemove', function(e) {
+        if (isDragging) updateSlider(e.clientX);
+      });
+      document.addEventListener('touchmove', function(e) {
+        if (isDragging) { e.preventDefault(); updateSlider(e.touches[0].clientX); }
+      }, { passive: false });
+
+      document.addEventListener('mouseup', function() { isDragging = false; });
+      document.addEventListener('touchend', function() { isDragging = false; });
+
+      container.addEventListener('click', function(e) { updateSlider(e.clientX); });
+    })();
+  </script>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  downloadBlob(blob, 'before-after-slider.html');
+}

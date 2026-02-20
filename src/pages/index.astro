@@ -1,0 +1,449 @@
+---
+import '../styles/global.css';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Take perfectly aligned before & after photos with onion skin overlay. Free, private, no sign-up." />
+    <meta name="theme-color" content="#0066FF" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="manifest" href={`${base}manifest.json`} />
+    <link rel="apple-touch-icon" href={`${base}icon-192.svg`} />
+    <title>Before/After Pro</title>
+  </head>
+
+  <body class="bg-[#111827] text-white overflow-hidden h-full select-none">
+
+    <!-- ========== LANDING SCREEN ========== -->
+    <div id="screen-landing" class="fixed inset-0 flex flex-col items-center justify-center bg-[#111827] z-50 p-6 text-center">
+      <div class="max-w-md w-full space-y-8">
+        <div>
+          <div class="text-5xl mb-4">📸</div>
+          <h1 class="text-3xl font-bold tracking-tight">Before/After Pro</h1>
+          <p class="text-gray-400 mt-3 text-lg">Take perfectly aligned before &amp; after photos</p>
+        </div>
+
+        <div class="space-y-3 text-left text-sm text-gray-400">
+          <div class="flex items-start gap-3 bg-white/5 rounded-xl p-4">
+            <span class="text-xl mt-0.5">🎯</span>
+            <div>
+              <div class="text-white font-semibold">Onion skin overlay</div>
+              <div>See your before photo while taking the after — line up shots perfectly</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 bg-white/5 rounded-xl p-4">
+            <span class="text-xl mt-0.5">📤</span>
+            <div>
+              <div class="text-white font-semibold">Instant exports</div>
+              <div>Side-by-side image or interactive slider — download to your device</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 bg-white/5 rounded-xl p-4">
+            <span class="text-xl mt-0.5">🔒</span>
+            <div>
+              <div class="text-white font-semibold">100% private</div>
+              <div>Photos never leave your device. No uploads, no accounts.</div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          id="btn-start"
+          class="w-full bg-[#0066FF] hover:bg-[#0052cc] text-white text-xl font-bold py-5 px-8 rounded-2xl transition-colors active:scale-[0.97] transform"
+        >
+          Start Taking Photos
+        </button>
+
+        <p class="text-xs text-gray-600">Free forever. Made for hardworking people.</p>
+      </div>
+    </div>
+
+    <!-- ========== SCREEN 1: TAKE BEFORE PHOTO ========== -->
+    <div id="screen-before" class="fixed inset-0 flex flex-col bg-black hidden">
+      <!-- Camera viewfinder -->
+      <div class="flex-1 relative overflow-hidden">
+        <video id="video-before" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
+
+        <!-- Camera unavailable fallback -->
+        <div id="no-camera-before" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 hidden">
+          <div class="text-5xl mb-4">📷</div>
+          <p class="text-gray-400 text-lg mb-4">Camera not available</p>
+          <label class="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl cursor-pointer text-lg transition-colors">
+            Upload Before Photo
+            <input type="file" id="file-before" accept="image/*" capture="environment" class="hidden" />
+          </label>
+        </div>
+
+        <!-- Top status bar -->
+        <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent">
+          <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 1 of 2</span>
+        </div>
+      </div>
+
+      <!-- Bottom controls -->
+      <div class="bg-black p-6 pb-8 flex flex-col items-center gap-3">
+        <button
+          id="btn-capture-before"
+          class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-xl font-bold py-5 rounded-2xl transition-colors active:scale-[0.97] transform"
+        >
+          Take Before Photo
+        </button>
+        <label class="text-gray-500 text-sm cursor-pointer hover:text-gray-300 transition-colors">
+          or upload from gallery
+          <input type="file" id="file-before-alt" accept="image/*" class="hidden" />
+        </label>
+      </div>
+    </div>
+
+    <!-- ========== SCREEN 2: TAKE AFTER PHOTO (ONION SKIN) ========== -->
+    <div id="screen-after" class="fixed inset-0 flex flex-col bg-black hidden">
+      <!-- Camera viewfinder with onion skin -->
+      <div class="flex-1 relative overflow-hidden">
+        <video id="video-after" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
+
+        <!-- Onion skin overlay (before photo) -->
+        <img
+          id="onion-skin"
+          class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          alt=""
+          style="opacity: 0.4;"
+        />
+
+        <!-- Camera unavailable fallback -->
+        <div id="no-camera-after" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 hidden">
+          <div class="text-5xl mb-4">📷</div>
+          <p class="text-gray-400 text-lg mb-4">Camera not available</p>
+          <label class="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl cursor-pointer text-lg transition-colors">
+            Upload After Photo
+            <input type="file" id="file-after" accept="image/*" capture="environment" class="hidden" />
+          </label>
+        </div>
+
+        <!-- Top status bar -->
+        <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent">
+          <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 2 of 2</span>
+          <button
+            id="btn-retake-before"
+            class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors"
+          >
+            ← Retake Before
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom controls: opacity slider + capture button -->
+      <div class="bg-black p-6 pb-8 flex flex-col items-center gap-4">
+        <!-- Opacity slider -->
+        <div class="w-full max-w-sm">
+          <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+            <span>Live view</span>
+            <span id="opacity-label" class="font-mono text-white">40%</span>
+            <span>Before overlay</span>
+          </div>
+          <input
+            type="range"
+            id="opacity-slider"
+            class="opacity-slider w-full"
+            min="0"
+            max="100"
+            value="40"
+          />
+        </div>
+
+        <button
+          id="btn-capture-after"
+          class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-xl font-bold py-5 rounded-2xl transition-colors active:scale-[0.97] transform"
+        >
+          Take After Photo
+        </button>
+        <label class="text-gray-500 text-sm cursor-pointer hover:text-gray-300 transition-colors">
+          or upload from gallery
+          <input type="file" id="file-after-alt" accept="image/*" class="hidden" />
+        </label>
+      </div>
+    </div>
+
+    <!-- ========== SCREEN 3: EXPORT ========== -->
+    <div id="screen-export" class="fixed inset-0 flex flex-col bg-[#111827] overflow-y-auto hidden">
+      <div class="max-w-lg mx-auto w-full p-6 py-8 space-y-6">
+        <!-- Header -->
+        <div class="text-center">
+          <h2 class="text-2xl font-bold">Photos Ready!</h2>
+          <p class="text-gray-400 mt-1">Choose how to export your comparison</p>
+        </div>
+
+        <!-- Preview thumbnails -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="bg-white/5 rounded-xl overflow-hidden aspect-[4/3]">
+              <img id="preview-before" class="w-full h-full object-cover" alt="Before photo" />
+            </div>
+            <p class="text-xs text-gray-500 text-center mt-2 font-semibold uppercase tracking-wide">Before</p>
+          </div>
+          <div>
+            <div class="bg-white/5 rounded-xl overflow-hidden aspect-[4/3]">
+              <img id="preview-after" class="w-full h-full object-cover" alt="After photo" />
+            </div>
+            <p class="text-xs text-gray-500 text-center mt-2 font-semibold uppercase tracking-wide">After</p>
+          </div>
+        </div>
+
+        <!-- Export options -->
+        <div class="space-y-3">
+          <h3 class="text-sm text-gray-500 font-semibold uppercase tracking-wide">Download Options</h3>
+
+          <!-- Side-by-side -->
+          <button
+            id="btn-export-sidebyside"
+            class="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 rounded-2xl p-5 transition-colors text-left group"
+          >
+            <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-2xl shrink-0">🖼️</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-white group-hover:text-blue-400 transition-colors">Side-by-Side Image</div>
+              <div class="text-sm text-gray-400">JPEG — perfect for social media</div>
+            </div>
+            <svg class="w-5 h-5 text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          </button>
+
+          <!-- HTML Slider -->
+          <button
+            id="btn-export-slider"
+            class="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 rounded-2xl p-5 transition-colors text-left group"
+          >
+            <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-2xl shrink-0">🌐</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-white group-hover:text-blue-400 transition-colors">Interactive Slider</div>
+              <div class="text-sm text-gray-400">HTML file — drag to compare, embed anywhere</div>
+            </div>
+            <svg class="w-5 h-5 text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Status message -->
+        <div id="export-status" class="text-center text-sm text-green-400 hidden">
+          Downloaded! Check your downloads folder.
+        </div>
+
+        <!-- Start over -->
+        <div class="pt-4">
+          <button
+            id="btn-start-over"
+            class="w-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-semibold py-4 rounded-2xl transition-colors"
+          >
+            Start Over
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      import { startCamera, stopCamera, captureFrame, hasCameraSupport } from '../utils/camera';
+      import { resizeImage } from '../utils/imageProcessing';
+      import { exportSideBySide, exportHtmlSlider } from '../utils/exporters';
+
+      // ---- State ----
+      let beforeDataUrl: string | null = null;
+      let afterDataUrl: string | null = null;
+      let currentStream: MediaStream | null = null;
+
+      // ---- DOM refs ----
+      const screenLanding = document.getElementById('screen-landing')!;
+      const screenBefore = document.getElementById('screen-before')!;
+      const screenAfter = document.getElementById('screen-after')!;
+      const screenExport = document.getElementById('screen-export')!;
+
+      const videoBefore = document.getElementById('video-before') as HTMLVideoElement;
+      const videoAfter = document.getElementById('video-after') as HTMLVideoElement;
+      const noCameraBefore = document.getElementById('no-camera-before')!;
+      const noCameraAfter = document.getElementById('no-camera-after')!;
+
+      const onionSkin = document.getElementById('onion-skin') as HTMLImageElement;
+      const opacitySlider = document.getElementById('opacity-slider') as HTMLInputElement;
+      const opacityLabel = document.getElementById('opacity-label')!;
+
+      const previewBefore = document.getElementById('preview-before') as HTMLImageElement;
+      const previewAfter = document.getElementById('preview-after') as HTMLImageElement;
+      const exportStatus = document.getElementById('export-status')!;
+
+      // ---- Screen management ----
+      function showScreen(screen: HTMLElement) {
+        [screenLanding, screenBefore, screenAfter, screenExport].forEach((s) =>
+          s.classList.add('hidden')
+        );
+        screen.classList.remove('hidden');
+      }
+
+      // ---- Camera helpers ----
+      async function openCamera(videoEl: HTMLVideoElement, fallbackEl: HTMLElement) {
+        if (!hasCameraSupport()) {
+          fallbackEl.classList.remove('hidden');
+          return;
+        }
+
+        try {
+          currentStream = await startCamera(videoEl, { facingMode: 'environment' });
+        } catch (err) {
+          console.warn('Camera access failed:', err);
+          fallbackEl.classList.remove('hidden');
+        }
+      }
+
+      function closeCamera() {
+        stopCamera(currentStream);
+        currentStream = null;
+        videoBefore.srcObject = null;
+        videoAfter.srcObject = null;
+      }
+
+      // ---- File upload helper ----
+      function handleFileUpload(input: HTMLInputElement): Promise<string> {
+        return new Promise((resolve, reject) => {
+          const file = input.files?.[0];
+          if (!file) return reject(new Error('No file selected'));
+
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // ---- Landing screen ----
+      document.getElementById('btn-start')!.addEventListener('click', async () => {
+        showScreen(screenBefore);
+        await openCamera(videoBefore, noCameraBefore);
+      });
+
+      // ---- Screen 1: Take Before Photo ----
+      document.getElementById('btn-capture-before')!.addEventListener('click', async () => {
+        if (!videoBefore.srcObject) return;
+        const raw = captureFrame(videoBefore);
+        beforeDataUrl = await resizeImage(raw, 1920);
+        closeCamera();
+        goToAfterScreen();
+      });
+
+      // File upload for before (both inputs)
+      ['file-before', 'file-before-alt'].forEach((id) => {
+        document.getElementById(id)!.addEventListener('change', async (e) => {
+          try {
+            const raw = await handleFileUpload(e.target as HTMLInputElement);
+            beforeDataUrl = await resizeImage(raw, 1920);
+            closeCamera();
+            goToAfterScreen();
+          } catch { /* user cancelled */ }
+        });
+      });
+
+      async function goToAfterScreen() {
+        showScreen(screenAfter);
+        // Set onion skin image
+        if (beforeDataUrl) {
+          onionSkin.src = beforeDataUrl;
+          onionSkin.classList.remove('hidden');
+        }
+        await openCamera(videoAfter, noCameraAfter);
+      }
+
+      // ---- Screen 2: Take After Photo (Onion Skin) ----
+
+      // Opacity slider
+      opacitySlider.addEventListener('input', () => {
+        const val = parseInt(opacitySlider.value);
+        onionSkin.style.opacity = (val / 100).toString();
+        opacityLabel.textContent = `${val}%`;
+      });
+
+      document.getElementById('btn-capture-after')!.addEventListener('click', async () => {
+        if (!videoAfter.srcObject) return;
+        const raw = captureFrame(videoAfter);
+        afterDataUrl = await resizeImage(raw, 1920);
+        closeCamera();
+        goToExportScreen();
+      });
+
+      // File upload for after (both inputs)
+      ['file-after', 'file-after-alt'].forEach((id) => {
+        document.getElementById(id)!.addEventListener('change', async (e) => {
+          try {
+            const raw = await handleFileUpload(e.target as HTMLInputElement);
+            afterDataUrl = await resizeImage(raw, 1920);
+            closeCamera();
+            goToExportScreen();
+          } catch { /* user cancelled */ }
+        });
+      });
+
+      // Retake before
+      document.getElementById('btn-retake-before')!.addEventListener('click', async () => {
+        beforeDataUrl = null;
+        closeCamera();
+        showScreen(screenBefore);
+        await openCamera(videoBefore, noCameraBefore);
+      });
+
+      function goToExportScreen() {
+        showScreen(screenExport);
+        if (beforeDataUrl) previewBefore.src = beforeDataUrl;
+        if (afterDataUrl) previewAfter.src = afterDataUrl;
+        exportStatus.classList.add('hidden');
+      }
+
+      // ---- Screen 3: Export ----
+      document.getElementById('btn-export-sidebyside')!.addEventListener('click', async () => {
+        if (!beforeDataUrl || !afterDataUrl) return;
+        const btn = document.getElementById('btn-export-sidebyside')!;
+        btn.classList.add('opacity-50', 'pointer-events-none');
+        try {
+          await exportSideBySide(beforeDataUrl, afterDataUrl);
+          flashStatus();
+        } finally {
+          btn.classList.remove('opacity-50', 'pointer-events-none');
+        }
+      });
+
+      document.getElementById('btn-export-slider')!.addEventListener('click', async () => {
+        if (!beforeDataUrl || !afterDataUrl) return;
+        const btn = document.getElementById('btn-export-slider')!;
+        btn.classList.add('opacity-50', 'pointer-events-none');
+        try {
+          await exportHtmlSlider(beforeDataUrl, afterDataUrl);
+          flashStatus();
+        } finally {
+          btn.classList.remove('opacity-50', 'pointer-events-none');
+        }
+      });
+
+      function flashStatus() {
+        exportStatus.classList.remove('hidden');
+        setTimeout(() => exportStatus.classList.add('hidden'), 3000);
+      }
+
+      // Start over
+      document.getElementById('btn-start-over')!.addEventListener('click', () => {
+        beforeDataUrl = null;
+        afterDataUrl = null;
+        closeCamera();
+        previewBefore.src = '';
+        previewAfter.src = '';
+        // Reset file inputs
+        document.querySelectorAll<HTMLInputElement>('input[type="file"]').forEach((i) => (i.value = ''));
+        showScreen(screenLanding);
+      });
+
+      // ---- PWA: Register service worker ----
+      if ('serviceWorker' in navigator) {
+        const base = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')?.href.replace('manifest.json', '') || '/';
+        navigator.serviceWorker.register(`${base}sw.js`).catch(() => {});
+      }
+    </script>
+  </body>
+</html>
