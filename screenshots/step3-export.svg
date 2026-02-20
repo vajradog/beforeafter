@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="900" viewBox="0 0 390 900">
+  <!-- Background -->
+  <rect width="390" height="900" fill="#111827"/>
+
+  <!-- Drag to compare label -->
+  <text x="195" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#fff" fill-opacity="0.35" letter-spacing="1">DRAG TO COMPARE · TAP FOR FULLSCREEN</text>
+
+  <!-- Interactive slider preview -->
+  <rect x="16" y="42" width="358" height="220" rx="16" fill="#1a1a1a"/>
+
+  <!-- After image (full area) -->
+  <rect x="16" y="42" width="358" height="220" rx="16" fill="#4a7a4a"/>
+  <rect x="60" y="100" width="130" height="120" rx="4" fill="#A0896B" opacity="0.5"/>
+  <rect x="210" y="120" width="100" height="100" rx="4" fill="#7BA07B" opacity="0.4"/>
+
+  <!-- Before overlay (left half) -->
+  <clipPath id="leftClip">
+    <rect x="16" y="42" width="179" height="220"/>
+  </clipPath>
+  <g clip-path="url(#leftClip)">
+    <rect x="16" y="42" width="358" height="220" fill="#2d4a2d"/>
+    <rect x="60" y="100" width="130" height="120" rx="4" fill="#8B7355" opacity="0.5"/>
+  </g>
+
+  <!-- Slider handle line -->
+  <line x1="195" y1="42" x2="195" y2="262" stroke="white" stroke-width="3"/>
+  <!-- Slider handle circle -->
+  <circle cx="195" cy="152" r="18" fill="white"/>
+  <text x="195" y="157" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#666">↔</text>
+
+  <!-- Before/After labels on slider -->
+  <rect x="28" y="54" width="58" height="22" rx="5" fill="#000" fill-opacity="0.6"/>
+  <text x="57" y="69" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">Before</text>
+  <rect x="306" y="54" width="52" height="22" rx="5" fill="#000" fill-opacity="0.6"/>
+  <text x="332" y="69" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">After</text>
+
+  <!-- Expand icon -->
+  <rect x="342" y="232" width="24" height="22" rx="6" fill="#000" fill-opacity="0.5"/>
+  <text x="354" y="248" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#fff" fill-opacity="0.8">⛶</text>
+
+  <!-- SAVE PHOTOS section -->
+  <text x="16" y="298" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#fff" fill-opacity="0.35" letter-spacing="1">SAVE PHOTOS</text>
+
+  <!-- Save Before card -->
+  <rect x="16" y="310" width="175" height="130" rx="16" fill="#fff" fill-opacity="0.05"/>
+  <rect x="30" y="322" width="147" height="70" rx="10" fill="#2d4a2d" fill-opacity="0.4"/>
+  <text x="103" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#fff" fill-opacity="0.5">Before</text>
+  <text x="103" y="424" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#fff" fill-opacity="0.7">↓ Save Before</text>
+
+  <!-- Save After card -->
+  <rect x="199" y="310" width="175" height="130" rx="16" fill="#fff" fill-opacity="0.05"/>
+  <rect x="213" y="322" width="147" height="70" rx="10" fill="#4a7a4a" fill-opacity="0.4"/>
+  <text x="286" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#fff" fill-opacity="0.5">After</text>
+  <text x="286" y="424" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#fff" fill-opacity="0.7">↓ Save After</text>
+
+  <!-- PRO OPTIONS section -->
+  <text x="16" y="478" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#fff" fill-opacity="0.35" letter-spacing="1">PRO OPTIONS</text>
+
+  <!-- Watermark input card -->
+  <rect x="16" y="490" width="358" height="88" rx="16" fill="#fff" fill-opacity="0.05"/>
+  <text x="32" y="514" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#fff" fill-opacity="0.7">Business watermark</text>
+  <rect x="32" y="524" width="326" height="38" rx="10" fill="#fff" fill-opacity="0.08" stroke="#fff" stroke-opacity="0.1" stroke-width="1"/>
+  <text x="46" y="548" font-family="Arial, sans-serif" font-size="12" fill="#fff" fill-opacity="0.3">e.g. Mike's Handyman · 555-1234</text>
+
+  <!-- Date stamps toggle card -->
+  <rect x="16" y="588" width="358" height="60" rx="16" fill="#fff" fill-opacity="0.05"/>
+  <text x="32" y="614" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#fff" fill-opacity="0.7">Date stamps</text>
+  <text x="32" y="634" font-family="Arial, sans-serif" font-size="11" fill="#fff" fill-opacity="0.35">Shows capture date on labels</text>
+  <!-- Toggle switch ON -->
+  <rect x="324" y="608" width="38" height="22" rx="11" fill="#0066FF"/>
+  <circle cx="350" cy="619" r="8" fill="white"/>
+
+  <!-- SHARE COMPARISON section -->
+  <text x="16" y="688" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#fff" fill-opacity="0.35" letter-spacing="1">SHARE COMPARISON</text>
+
+  <!-- Side-by-side button (highlighted) -->
+  <rect x="16" y="700" width="358" height="60" rx="16" fill="#0066FF" fill-opacity="0.1" stroke="#0066FF" stroke-opacity="0.3" stroke-width="1"/>
+  <circle cx="52" cy="730" r="18" fill="#0066FF" fill-opacity="0.2"/>
+  <text x="52" y="735" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#0066FF">⬜</text>
+  <text x="82" y="724" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">Side-by-Side Image</text>
+  <text x="82" y="742" font-family="Arial, sans-serif" font-size="11" fill="#fff" fill-opacity="0.4">One image, both photos — great for texting</text>
+
+  <!-- Slider for website button -->
+  <rect x="16" y="768" width="358" height="60" rx="16" fill="#fff" fill-opacity="0.05"/>
+  <circle cx="52" cy="798" r="18" fill="#fff" fill-opacity="0.08"/>
+  <text x="52" y="803" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#fff" fill-opacity="0.4">&lt;/&gt;</text>
+  <text x="82" y="792" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#fff" fill-opacity="0.6">Slider for Website</text>
+  <text x="82" y="810" font-family="Arial, sans-serif" font-size="11" fill="#fff" fill-opacity="0.35">HTML file — embed on your site</text>
+
+  <!-- Start Over -->
+  <rect x="16" y="844" width="358" height="42" rx="16" fill="#fff" fill-opacity="0.05"/>
+  <text x="195" y="870" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#fff" fill-opacity="0.4">Start Over</text>
+</svg>

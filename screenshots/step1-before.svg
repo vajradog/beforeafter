@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <defs>
+    <linearGradient id="topGrad1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="botGrad1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Camera viewfinder area -->
+  <rect width="390" height="844" rx="40" fill="#2d4a2d"/>
+  <rect x="40" y="200" width="150" height="200" rx="4" fill="#8B7355" opacity="0.6"/>
+  <rect x="200" y="250" width="120" height="150" rx="4" fill="#6B8E6B" opacity="0.5"/>
+  <rect x="60" y="450" width="270" height="8" fill="#8B7355" opacity="0.3"/>
+
+  <!-- Top gradient overlay -->
+  <rect x="0" y="0" width="390" height="80" fill="url(#topGrad1)"/>
+
+  <!-- Step badge -->
+  <rect x="16" y="16" width="120" height="36" rx="18" fill="#fff" fill-opacity="0.2"/>
+  <text x="76" y="39" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">STEP 1 of 2</text>
+
+  <!-- Bottom gradient overlay -->
+  <rect x="0" y="670" width="390" height="174" fill="url(#botGrad1)"/>
+
+  <!-- Capture button -->
+  <rect x="24" y="710" width="342" height="56" rx="16" fill="#0066FF"/>
+  <text x="195" y="745" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">Take Before Photo</text>
+
+  <!-- Upload hint -->
+  <text x="195" y="795" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#fff" fill-opacity="0.6">or upload from gallery</text>
+</svg>

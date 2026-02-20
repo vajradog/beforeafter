@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <defs>
+    <linearGradient id="topGrad2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="botGrad2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="60%" stop-color="#000" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Camera viewfinder (live scene) -->
+  <rect width="390" height="844" rx="40" fill="#3a5a3a"/>
+  <rect x="40" y="200" width="150" height="200" rx="4" fill="#A0896B" opacity="0.6"/>
+  <rect x="200" y="250" width="120" height="150" rx="4" fill="#7BA07B" opacity="0.5"/>
+
+  <!-- Ghost overlay (before photo - semi transparent) -->
+  <rect width="390" height="844" rx="40" fill="#2d4a2d" opacity="0.35"/>
+  <rect x="42" y="202" width="148" height="198" rx="4" fill="#8B7355" opacity="0.2"/>
+  <rect x="202" y="252" width="118" height="148" rx="4" fill="#6B8E6B" opacity="0.15"/>
+
+  <!-- Top gradient -->
+  <rect x="0" y="0" width="390" height="130" fill="url(#topGrad2)"/>
+
+  <!-- Step badge -->
+  <rect x="16" y="16" width="120" height="36" rx="18" fill="#fff" fill-opacity="0.2"/>
+  <text x="76" y="39" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white">STEP 2 of 2</text>
+
+  <!-- Retake button -->
+  <rect x="230" y="16" width="144" height="36" rx="18" fill="#fff" fill-opacity="0.2"/>
+  <text x="302" y="39" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="white">← Retake Before</text>
+
+  <!-- Coaching hint -->
+  <rect x="16" y="62" width="358" height="40" rx="12" fill="#000" fill-opacity="0.7"/>
+  <text x="195" y="87" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="white">Line up the ghost image with your camera, then shoot!</text>
+
+  <!-- Bottom gradient -->
+  <rect x="0" y="620" width="390" height="224" fill="url(#botGrad2)"/>
+
+  <!-- Opacity slider labels -->
+  <text x="24" y="660" font-family="Arial, sans-serif" font-size="11" fill="#fff" fill-opacity="0.6">Live view</text>
+  <text x="195" y="660" text-anchor="middle" font-family="monospace" font-size="11" fill="white">40%</text>
+  <text x="366" y="660" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#fff" fill-opacity="0.6">Before overlay</text>
+
+  <!-- Slider track -->
+  <rect x="24" y="670" width="342" height="8" rx="4" fill="#fff" fill-opacity="0.3"/>
+  <!-- Slider thumb at 40% -->
+  <circle cx="161" cy="674" r="14" fill="white"/>
+
+  <!-- Capture button -->
+  <rect x="24" y="700" width="342" height="56" rx="16" fill="#0066FF"/>
+  <text x="195" y="735" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">Take After Photo</text>
+
+  <!-- Upload hint -->
+  <text x="195" y="785" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#fff" fill-opacity="0.6">or upload from gallery</text>
+</svg>

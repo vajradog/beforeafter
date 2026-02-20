@@ -62,38 +62,82 @@ const base = import.meta.env.BASE_URL;
       </div>
     </div>
 
-    <!-- ========== SCREEN 1: TAKE BEFORE PHOTO ========== -->
-    <div id="screen-before" class="fixed inset-0 bg-black hidden">
-      <!-- Camera viewfinder (full screen) -->
+    <!-- ========== SCREEN 1: BEFORE PHOTO ========== -->
+    <div id="screen-before" class="fixed inset-0 bg-[#111827] hidden">
+      <!-- Camera viewfinder (full screen, behind everything) -->
       <video id="video-before" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
 
-      <!-- Camera unavailable fallback -->
-      <div id="no-camera-before" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 hidden z-10">
-        <div class="text-5xl mb-4">📷</div>
-        <p class="text-gray-400 text-lg mb-4">Camera not available</p>
-        <label class="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl cursor-pointer text-lg transition-colors">
-          Upload Before Photo
-          <input type="file" id="file-before" accept="image/*" capture="environment" class="hidden" />
-        </label>
+      <!-- Upload-first chooser (shown by default) -->
+      <div id="before-chooser" class="absolute inset-0 flex flex-col items-center justify-center bg-[#111827] z-10 p-6 text-center overflow-y-auto">
+        <div class="max-w-sm w-full space-y-5 my-auto">
+          <div>
+            <span class="bg-white/10 text-white text-sm font-bold px-4 py-2 rounded-full">STEP 1 of 2</span>
+          </div>
+          <div>
+            <div class="text-4xl mb-3">📷</div>
+            <h2 class="text-xl font-bold">Before Photo</h2>
+            <p class="text-gray-400 text-sm mt-2">Already took one? Upload it. Starting fresh? Use the camera.</p>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Upload from gallery (PRIMARY action) -->
+            <label class="w-full flex items-center gap-4 bg-[#0066FF] hover:bg-[#0052cc] active:scale-[0.97] text-white font-bold py-4 px-5 rounded-2xl cursor-pointer transition-all transform shadow-lg">
+              <svg class="w-7 h-7 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <div class="text-left">
+                <div class="text-lg">Upload from Gallery</div>
+                <div class="text-xs font-normal opacity-80">Pick a photo you already took</div>
+              </div>
+              <input type="file" id="file-before" accept="image/*" class="hidden" />
+            </label>
+
+            <!-- Take with camera -->
+            <button
+              id="btn-open-camera-before"
+              class="w-full flex items-center gap-4 bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white font-bold py-4 px-5 rounded-2xl transition-all transform"
+            >
+              <svg class="w-7 h-7 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <circle cx="12" cy="13" r="3" />
+              </svg>
+              <div class="text-left">
+                <div class="text-lg">Take with Camera</div>
+                <div class="text-xs font-normal text-gray-400">Open camera to shoot now</div>
+              </div>
+            </button>
+          </div>
+
+          <button id="btn-back-to-landing" class="text-gray-500 text-sm hover:text-gray-300 transition-colors">← Back</button>
+        </div>
       </div>
 
-      <!-- Top status bar (overlay) -->
-      <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-20">
-        <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 1 of 2</span>
-      </div>
+      <!-- Camera mode (hidden by default, shown when they tap "Take with Camera") -->
+      <div id="before-camera-ui" class="hidden">
+        <!-- Top status bar (overlay) -->
+        <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-20">
+          <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 1 of 2</span>
+          <button
+            id="btn-back-to-chooser"
+            class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors"
+          >
+            ← Back
+          </button>
+        </div>
 
-      <!-- Bottom controls (overlay on viewfinder) -->
-      <div class="absolute bottom-0 left-0 right-0 px-4 py-4 pb-6 flex flex-col items-center gap-2 bg-gradient-to-t from-black/70 to-transparent z-20">
-        <button
-          id="btn-capture-before"
-          class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-lg font-bold py-4 rounded-2xl transition-colors active:scale-[0.97] transform shadow-lg"
-        >
-          Take Before Photo
-        </button>
-        <label class="text-gray-300 text-xs cursor-pointer hover:text-white transition-colors">
-          or upload from gallery
-          <input type="file" id="file-before-alt" accept="image/*" class="hidden" />
-        </label>
+        <!-- Bottom controls (overlay on viewfinder) -->
+        <div class="absolute bottom-0 left-0 right-0 px-4 py-4 pb-6 flex flex-col items-center gap-2 bg-gradient-to-t from-black/70 to-transparent z-20">
+          <button
+            id="btn-capture-before"
+            class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-lg font-bold py-4 rounded-2xl transition-colors active:scale-[0.97] transform shadow-lg"
+          >
+            Take Before Photo
+          </button>
+          <label class="text-gray-300 text-xs cursor-pointer hover:text-white transition-colors">
+            or upload from gallery
+            <input type="file" id="file-before-alt" accept="image/*" class="hidden" />
+          </label>
+        </div>
       </div>
     </div>
 
@@ -373,7 +417,6 @@ const base = import.meta.env.BASE_URL;
 
       const videoBefore = document.getElementById('video-before') as HTMLVideoElement;
       const videoAfter = document.getElementById('video-after') as HTMLVideoElement;
-      const noCameraBefore = document.getElementById('no-camera-before')!;
       const noCameraAfter = document.getElementById('no-camera-after')!;
 
       const onionSkin = document.getElementById('onion-skin') as HTMLImageElement;
@@ -440,13 +483,40 @@ const base = import.meta.env.BASE_URL;
         });
       }
 
+      // ---- DOM refs for before chooser ----
+      const beforeChooser = document.getElementById('before-chooser')!;
+      const beforeCameraUI = document.getElementById('before-camera-ui')!;
+
       // ---- Landing screen ----
-      document.getElementById('btn-start')!.addEventListener('click', async () => {
+      document.getElementById('btn-start')!.addEventListener('click', () => {
         showScreen(screenBefore);
-        await openCamera(videoBefore, noCameraBefore);
+        // Show the chooser (upload or camera), not the camera directly
+        beforeChooser.classList.remove('hidden');
+        beforeCameraUI.classList.add('hidden');
       });
 
-      // ---- Screen 1: Take Before Photo ----
+      // ---- Screen 1: Before Photo ----
+
+      // "Take with Camera" button — opens the camera viewfinder
+      document.getElementById('btn-open-camera-before')!.addEventListener('click', async () => {
+        beforeChooser.classList.add('hidden');
+        beforeCameraUI.classList.remove('hidden');
+        await openCamera(videoBefore, beforeChooser); // fallback back to chooser if no camera
+      });
+
+      // Back from camera to chooser
+      document.getElementById('btn-back-to-chooser')!.addEventListener('click', () => {
+        closeCamera();
+        beforeCameraUI.classList.add('hidden');
+        beforeChooser.classList.remove('hidden');
+      });
+
+      // Back from chooser to landing
+      document.getElementById('btn-back-to-landing')!.addEventListener('click', () => {
+        showScreen(screenLanding);
+      });
+
+      // Camera capture
       document.getElementById('btn-capture-before')!.addEventListener('click', async () => {
         if (!videoBefore.srcObject) return;
         const raw = captureFrame(videoBefore);
@@ -456,7 +526,7 @@ const base = import.meta.env.BASE_URL;
         goToAfterScreen();
       });
 
-      // File upload for before (both inputs)
+      // File upload for before (all upload inputs)
       ['file-before', 'file-before-alt'].forEach((id) => {
         document.getElementById(id)!.addEventListener('change', async (e) => {
           try {
@@ -515,13 +585,14 @@ const base = import.meta.env.BASE_URL;
         });
       });
 
-      // Retake before
-      document.getElementById('btn-retake-before')!.addEventListener('click', async () => {
+      // Retake before — go back to the chooser
+      document.getElementById('btn-retake-before')!.addEventListener('click', () => {
         beforeDataUrl = null;
         beforeTimestamp = null;
         closeCamera();
         showScreen(screenBefore);
-        await openCamera(videoBefore, noCameraBefore);
+        beforeChooser.classList.remove('hidden');
+        beforeCameraUI.classList.add('hidden');
       });
 
       function goToExportScreen() {
@@ -651,8 +722,10 @@ const base = import.meta.env.BASE_URL;
         closeCamera();
         previewBefore.src = '';
         previewAfter.src = '';
-        // Reset file inputs
+        // Reset file inputs and before screen state
         document.querySelectorAll<HTMLInputElement>('input[type="file"]').forEach((i) => (i.value = ''));
+        beforeChooser.classList.remove('hidden');
+        beforeCameraUI.classList.add('hidden');
         showScreen(screenLanding);
       });
 
