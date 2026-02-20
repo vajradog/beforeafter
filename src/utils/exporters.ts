@@ -288,18 +288,40 @@ export function initInlineSlider(container: HTMLElement, beforeSrc: string, afte
   container.style.touchAction = 'pan-y';
   handle.style.touchAction = 'none';
 
-  // The before image must always match the after image's rendered width,
-  // NOT the overlay width. The overlay clips it — creating the reveal effect.
+  // Compute the display size: fill container width, but cap height at 55vh.
+  // Both images get identical explicit pixel dimensions — no CSS scaling tricks.
   function matchSize() {
-    const w = afterImg.offsetWidth;
-    const h = afterImg.offsetHeight;
+    if (!afterImg.naturalWidth || !afterImg.naturalHeight) return;
+
+    const containerW = container.offsetWidth;
+    const maxH = window.innerHeight * 0.55;
+    const aspect = afterImg.naturalWidth / afterImg.naturalHeight;
+
+    // Start with full container width
+    let w = containerW;
+    let h = w / aspect;
+
+    // If too tall, cap height and shrink width to fit
+    if (h > maxH) {
+      h = maxH;
+      w = h * aspect;
+    }
+
+    // Set explicit pixel sizes on everything
+    afterImg.style.width = w + 'px';
+    afterImg.style.height = h + 'px';
     beforeImg.style.width = w + 'px';
     beforeImg.style.height = h + 'px';
     overlay.style.height = h + 'px';
+    container.style.height = h + 'px';
   }
 
   afterImg.addEventListener('load', matchSize);
   window.addEventListener('resize', matchSize);
+  // Also run on orientationchange for mobile rotation
+  window.addEventListener('orientationchange', () => {
+    setTimeout(matchSize, 150);
+  });
   matchSize();
 
   function updateSlider(clientX: number) {

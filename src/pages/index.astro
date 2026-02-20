@@ -170,10 +170,10 @@ const base = import.meta.env.BASE_URL;
         <!-- Interactive slider preview (THE MAIN EVENT) -->
         <div>
           <p class="text-xs text-gray-500 text-center mb-2 font-semibold uppercase tracking-wide">Drag to compare</p>
-          <div id="inline-slider" class="relative w-full rounded-2xl overflow-hidden bg-black select-none" style="line-height:0; max-height:55vh;">
-            <img class="slider-after-img block w-full h-auto" alt="After" draggable="false" />
+          <div id="inline-slider" class="relative w-full rounded-2xl overflow-hidden bg-black select-none" style="line-height:0;">
+            <img class="slider-after-img block" alt="After" draggable="false" />
             <div class="slider-overlay absolute top-0 left-0 w-1/2 h-full overflow-hidden">
-              <img class="slider-before-img absolute top-0 left-0 block h-full" alt="Before" draggable="false" style="max-width:none;" />
+              <img class="slider-before-img absolute top-0 left-0 block" alt="Before" draggable="false" style="max-width:none;" />
             </div>
             <div class="slider-handle absolute top-0 bottom-0 left-1/2 w-1 -ml-0.5 bg-white cursor-ew-resize z-10" style="box-shadow:0 0 8px rgba(0,0,0,0.5);">
               <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center">
