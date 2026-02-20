@@ -11,6 +11,7 @@
 html, body {
   height: 100%;
   overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Enable smooth scrolling on scrollable screens */
@@ -21,6 +22,14 @@ html, body {
 /* Camera video should fill container */
 video {
   object-fit: cover;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 /* Custom range slider for opacity control */
@@ -53,4 +62,23 @@ input[type="range"].opacity-slider::-moz-range-thumb {
   cursor: pointer;
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Focus visible only for keyboard navigation */
+input[type="range"].opacity-slider:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 4px;
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .pb-5 {
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+  .pb-6 {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+  .pb-10 {
+    padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
+  }
 }

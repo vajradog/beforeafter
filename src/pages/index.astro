@@ -2,48 +2,71 @@
 import '../styles/global.css';
 
 const base = import.meta.env.BASE_URL;
+const canonicalUrl = 'https://vajradog.github.io/beforeafter/';
 ---
 
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <meta name="description" content="Take perfectly aligned before & after photos with onion skin overlay. Free, private, no sign-up." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Take perfectly aligned before & after photos with onion skin overlay. Free, private, works on any phone. No app store, no sign-up." />
     <meta name="theme-color" content="#0066FF" />
+
+    <!-- SEO & Social -->
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:title" content="Before/After Pro — Aligned Before & After Photos" />
+    <meta property="og:description" content="Take perfectly aligned before & after photos with ghost overlay. Free, private, works on any phone." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={`${canonicalUrl}icon-192.svg`} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Before/After Pro" />
+    <meta name="twitter:description" content="Aligned before & after photos with ghost overlay. Free & private." />
+
+    <!-- Security -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- PWA -->
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <link rel="manifest" href={`${base}manifest.json`} />
     <link rel="apple-touch-icon" href={`${base}icon-192.svg`} />
-    <title>Before/After Pro</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="B/A Pro" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <title>Before/After Pro — Aligned Before & After Photos</title>
   </head>
 
   <body class="bg-[#111827] text-white overflow-hidden h-full select-none">
 
     <!-- ========== LANDING SCREEN ========== -->
-    <div id="screen-landing" class="fixed inset-0 flex flex-col items-center bg-[#111827] z-50 p-6 text-center overflow-y-auto">
+    <div id="screen-landing" class="fixed inset-0 flex flex-col items-center bg-[#111827] z-50 p-6 text-center overflow-y-auto" role="main">
       <div class="max-w-md w-full space-y-8 my-auto">
         <div>
-          <div class="text-5xl mb-4">📸</div>
+          <div class="text-5xl mb-4" aria-hidden="true">📸</div>
           <h1 class="text-3xl font-bold tracking-tight">Before/After Pro</h1>
           <p class="text-gray-400 mt-3 text-lg">Take perfectly aligned before &amp; after photos</p>
         </div>
 
         <div class="space-y-3 text-left text-sm text-gray-400">
           <div class="flex items-start gap-3 bg-white/5 rounded-xl p-4">
-            <span class="text-xl mt-0.5">🎯</span>
+            <span class="text-xl mt-0.5" aria-hidden="true">🎯</span>
             <div>
               <div class="text-white font-semibold">Onion skin overlay</div>
               <div>See your before photo while taking the after — line up shots perfectly</div>
             </div>
           </div>
           <div class="flex items-start gap-3 bg-white/5 rounded-xl p-4">
-            <span class="text-xl mt-0.5">📤</span>
+            <span class="text-xl mt-0.5" aria-hidden="true">📤</span>
             <div>
               <div class="text-white font-semibold">Instant exports</div>
               <div>Side-by-side image or interactive slider — download to your device</div>
             </div>
           </div>
           <div class="flex items-start gap-3 bg-white/5 rounded-xl p-4">
-            <span class="text-xl mt-0.5">🔒</span>
+            <span class="text-xl mt-0.5" aria-hidden="true">🔒</span>
             <div>
               <div class="text-white font-semibold">100% private</div>
               <div>Photos never leave your device. No uploads, no accounts.</div>
@@ -53,7 +76,7 @@ const base = import.meta.env.BASE_URL;
 
         <button
           id="btn-start"
-          class="w-full bg-[#0066FF] hover:bg-[#0052cc] text-white text-xl font-bold py-5 px-8 rounded-2xl transition-colors active:scale-[0.97] transform"
+          class="w-full bg-[#0066FF] hover:bg-[#0052cc] text-white text-xl font-bold py-5 px-8 rounded-2xl transition-colors active:scale-[0.97] transform focus:outline-none focus:ring-2 focus:ring-white/50"
         >
           Start Taking Photos
         </button>
@@ -63,8 +86,7 @@ const base = import.meta.env.BASE_URL;
     </div>
 
     <!-- ========== SCREEN 1: BEFORE PHOTO ========== -->
-    <div id="screen-before" class="fixed inset-0 bg-[#111827] hidden">
-      <!-- Camera viewfinder (full screen, behind everything) -->
+    <div id="screen-before" class="fixed inset-0 bg-[#111827] hidden" role="region" aria-label="Step 1: Before Photo">
       <video id="video-before" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
 
       <!-- Upload-first chooser (shown by default) -->
@@ -74,30 +96,28 @@ const base = import.meta.env.BASE_URL;
             <span class="bg-white/10 text-white text-sm font-bold px-4 py-2 rounded-full">STEP 1 of 2</span>
           </div>
           <div>
-            <div class="text-4xl mb-3">📷</div>
+            <div class="text-4xl mb-3" aria-hidden="true">📷</div>
             <h2 class="text-xl font-bold">Before Photo</h2>
             <p class="text-gray-400 text-sm mt-2">Already took one? Upload it. Starting fresh? Use the camera.</p>
           </div>
 
           <div class="space-y-3">
-            <!-- Upload from gallery (PRIMARY action) -->
-            <label class="w-full flex items-center gap-4 bg-[#0066FF] hover:bg-[#0052cc] active:scale-[0.97] text-white font-bold py-4 px-5 rounded-2xl cursor-pointer transition-all transform shadow-lg">
-              <svg class="w-7 h-7 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <label class="w-full flex items-center gap-4 bg-[#0066FF] hover:bg-[#0052cc] active:scale-[0.97] text-white font-bold py-4 px-5 rounded-2xl cursor-pointer transition-all transform shadow-lg focus-within:ring-2 focus-within:ring-white/50">
+              <svg class="w-7 h-7 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <div class="text-left">
                 <div class="text-lg">Upload from Gallery</div>
                 <div class="text-xs font-normal opacity-80">Pick a photo you already took</div>
               </div>
-              <input type="file" id="file-before" accept="image/*" class="hidden" />
+              <input type="file" id="file-before" accept="image/*" class="hidden" aria-label="Upload before photo from gallery" />
             </label>
 
-            <!-- Take with camera -->
             <button
               id="btn-open-camera-before"
-              class="w-full flex items-center gap-4 bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white font-bold py-4 px-5 rounded-2xl transition-all transform"
+              class="w-full flex items-center gap-4 bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white font-bold py-4 px-5 rounded-2xl transition-all transform focus:outline-none focus:ring-2 focus:ring-white/50"
             >
-              <svg class="w-7 h-7 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg class="w-7 h-7 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                 <circle cx="12" cy="13" r="3" />
               </svg>
@@ -108,86 +128,80 @@ const base = import.meta.env.BASE_URL;
             </button>
           </div>
 
-          <button id="btn-back-to-landing" class="text-gray-500 text-sm hover:text-gray-300 transition-colors">← Back</button>
+          <button id="btn-back-to-landing" class="text-gray-500 text-sm hover:text-gray-300 transition-colors focus:outline-none focus:text-gray-300">← Back</button>
         </div>
       </div>
 
-      <!-- Camera mode (hidden by default, shown when they tap "Take with Camera") -->
+      <!-- Camera mode -->
       <div id="before-camera-ui" class="hidden">
-        <!-- Top status bar (overlay) -->
         <div class="absolute top-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent z-20">
           <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 1 of 2</span>
           <button
             id="btn-back-to-chooser"
-            class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors"
+            class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
           >
             ← Back
           </button>
         </div>
 
-        <!-- Bottom controls (overlay on viewfinder) -->
         <div class="absolute bottom-0 left-0 right-0 px-4 py-4 pb-6 flex flex-col items-center gap-2 bg-gradient-to-t from-black/70 to-transparent z-20">
           <button
             id="btn-capture-before"
-            class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-lg font-bold py-4 rounded-2xl transition-colors active:scale-[0.97] transform shadow-lg"
+            class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-lg font-bold py-4 rounded-2xl transition-colors active:scale-[0.97] transform shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50"
           >
             Take Before Photo
           </button>
           <label class="text-gray-300 text-xs cursor-pointer hover:text-white transition-colors">
             or upload from gallery
-            <input type="file" id="file-before-alt" accept="image/*" class="hidden" />
+            <input type="file" id="file-before-alt" accept="image/*" class="hidden" aria-label="Upload before photo" />
           </label>
         </div>
       </div>
     </div>
 
     <!-- ========== SCREEN 2: TAKE AFTER PHOTO (ONION SKIN) ========== -->
-    <div id="screen-after" class="fixed inset-0 bg-black hidden">
-      <!-- Camera viewfinder (full screen) -->
+    <div id="screen-after" class="fixed inset-0 bg-black hidden" role="region" aria-label="Step 2: After Photo">
       <video id="video-after" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
 
-      <!-- Onion skin overlay (before photo) -->
       <img
         id="onion-skin"
         class="absolute inset-0 w-full h-full object-cover pointer-events-none"
-        alt=""
+        alt="Ghost overlay of before photo for alignment"
         style="opacity: 0.4;"
       />
 
       <!-- Camera unavailable fallback -->
       <div id="no-camera-after" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 hidden z-10">
-        <div class="text-5xl mb-4">📷</div>
+        <div class="text-5xl mb-4" aria-hidden="true">📷</div>
         <p class="text-gray-400 text-lg mb-4">Camera not available</p>
-        <label class="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl cursor-pointer text-lg transition-colors">
+        <label class="bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl cursor-pointer text-lg transition-colors focus-within:ring-2 focus-within:ring-white/50">
           Upload After Photo
-          <input type="file" id="file-after" accept="image/*" capture="environment" class="hidden" />
+          <input type="file" id="file-after" accept="image/*" capture="environment" class="hidden" aria-label="Upload after photo" />
         </label>
       </div>
 
-      <!-- Top status bar (overlay) -->
+      <!-- Top status bar -->
       <div class="absolute top-0 left-0 right-0 p-4 flex flex-col gap-2 bg-gradient-to-b from-black/60 to-transparent z-20">
         <div class="flex items-center justify-between">
           <span class="bg-white/20 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">STEP 2 of 2</span>
           <button
             id="btn-retake-before"
-            class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors"
+            class="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
           >
             ← Retake Before
           </button>
         </div>
-        <!-- Alignment coaching hint — auto-fades -->
-        <div id="align-hint" class="bg-black/70 text-white text-sm text-center py-2.5 px-4 rounded-xl backdrop-blur-sm transition-opacity duration-700">
+        <div id="align-hint" class="bg-black/70 text-white text-sm text-center py-2.5 px-4 rounded-xl backdrop-blur-sm transition-opacity duration-700" role="status">
           Line up the ghost image with your camera, then shoot!
         </div>
       </div>
 
-      <!-- Bottom controls: opacity slider + capture button (overlay on viewfinder) -->
+      <!-- Bottom controls -->
       <div class="absolute bottom-0 left-0 right-0 px-4 py-3 pb-5 flex flex-col items-center gap-2 bg-gradient-to-t from-black/80 via-black/50 to-transparent z-20">
-        <!-- Opacity slider -->
         <div class="w-full max-w-sm">
           <div class="flex items-center justify-between text-xs text-gray-300 mb-1">
             <span>Live view</span>
-            <span id="opacity-label" class="font-mono text-white">40%</span>
+            <span id="opacity-label" class="font-mono text-white" aria-live="polite">40%</span>
             <span>Before overlay</span>
           </div>
           <input
@@ -197,49 +211,63 @@ const base = import.meta.env.BASE_URL;
             min="0"
             max="100"
             value="40"
+            aria-label="Ghost overlay opacity"
           />
         </div>
 
         <button
           id="btn-capture-after"
-          class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-lg font-bold py-4 rounded-2xl transition-colors active:scale-[0.97] transform shadow-lg"
+          class="w-full max-w-sm bg-[#0066FF] hover:bg-[#0052cc] text-white text-lg font-bold py-4 rounded-2xl transition-colors active:scale-[0.97] transform shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50"
         >
           Take After Photo
         </button>
         <label class="text-gray-300 text-xs cursor-pointer hover:text-white transition-colors">
           or upload from gallery
-          <input type="file" id="file-after-alt" accept="image/*" class="hidden" />
+          <input type="file" id="file-after-alt" accept="image/*" class="hidden" aria-label="Upload after photo" />
         </label>
       </div>
     </div>
 
     <!-- ========== SCREEN 3: EXPORT ========== -->
-    <div id="screen-export" class="fixed inset-0 flex flex-col bg-[#111827] overflow-y-auto hidden">
+    <div id="screen-export" class="fixed inset-0 flex flex-col bg-[#111827] overflow-y-auto hidden" role="region" aria-label="Compare and Export">
       <div class="max-w-lg mx-auto w-full p-4 pt-6 pb-10 space-y-5">
 
-        <!-- Interactive slider preview (THE MAIN EVENT) -->
+        <!-- Interactive slider preview -->
         <div>
-          <p class="text-xs text-gray-500 text-center mb-2 font-semibold uppercase tracking-wide">Drag to compare &middot; Tap for fullscreen</p>
-          <div id="inline-slider" class="relative w-full rounded-2xl overflow-hidden bg-black select-none cursor-pointer mx-auto" style="line-height:0;">
-            <img class="slider-after-img block" alt="After" draggable="false" />
+          <p class="text-xs text-gray-500 text-center mb-2 font-semibold uppercase tracking-wide">Drag to compare &middot; Double-tap for fullscreen</p>
+          <div
+            id="inline-slider"
+            class="relative w-full rounded-2xl overflow-hidden bg-black select-none cursor-pointer mx-auto"
+            style="line-height:0;"
+            role="slider"
+            aria-label="Before and after comparison. Drag handle or use arrow keys."
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="50"
+            tabindex="0"
+          >
+            <img class="slider-after-img block" alt="After photo" draggable="false" />
             <div class="slider-overlay absolute top-0 left-0 w-1/2 h-full overflow-hidden">
-              <img class="slider-before-img absolute top-0 left-0 block" alt="Before" draggable="false" style="max-width:none;" />
+              <img class="slider-before-img absolute top-0 left-0 block" alt="Before photo" draggable="false" style="max-width:none;" />
             </div>
             <div class="slider-handle absolute top-0 bottom-0 left-1/2 w-1 -ml-0.5 bg-white cursor-ew-resize z-10" style="box-shadow:0 0 8px rgba(0,0,0,0.5);">
               <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l-3 3 3 3M16 9l3 3-3 3" />
                 </svg>
               </div>
             </div>
-            <div class="absolute top-3 left-3 px-3 py-1.5 bg-black/60 text-white text-xs font-bold rounded-md uppercase tracking-wide backdrop-blur-sm">Before</div>
-            <div class="absolute top-3 right-3 px-3 py-1.5 bg-black/60 text-white text-xs font-bold rounded-md uppercase tracking-wide backdrop-blur-sm">After</div>
-            <!-- Fullscreen hint icon -->
-            <div class="absolute bottom-3 right-3 w-8 h-8 bg-black/50 rounded-lg flex items-center justify-center backdrop-blur-sm">
-              <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="absolute top-3 left-3 px-3 py-1.5 bg-black/60 text-white text-xs font-bold rounded-md uppercase tracking-wide backdrop-blur-sm pointer-events-none">Before</div>
+            <div class="absolute top-3 right-3 px-3 py-1.5 bg-black/60 text-white text-xs font-bold rounded-md uppercase tracking-wide backdrop-blur-sm pointer-events-none">After</div>
+            <button
+              id="btn-expand-fullscreen"
+              class="absolute bottom-3 right-3 w-8 h-8 bg-black/50 rounded-lg flex items-center justify-center backdrop-blur-sm hover:bg-black/70 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+              aria-label="View fullscreen comparison"
+            >
+              <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
               </svg>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -247,32 +275,30 @@ const base = import.meta.env.BASE_URL;
         <div>
           <h3 class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-2">Save Photos</h3>
           <div class="grid grid-cols-2 gap-3">
-            <!-- Save Before -->
             <button
               id="btn-save-before"
-              class="flex flex-col items-center gap-2 bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-2xl p-4 transition-colors group"
+              class="flex flex-col items-center gap-2 bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-2xl p-4 transition-colors group focus:outline-none focus:ring-2 focus:ring-white/30"
             >
               <div class="w-full aspect-[4/3] rounded-xl overflow-hidden bg-black/30">
-                <img id="preview-before" class="w-full h-full object-cover" alt="Before photo" />
+                <img id="preview-before" class="w-full h-full object-cover" alt="Before photo preview" />
               </div>
               <div class="flex items-center gap-2 text-sm font-semibold text-gray-300 group-hover:text-white transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Save Before
               </div>
             </button>
 
-            <!-- Save After -->
             <button
               id="btn-save-after"
-              class="flex flex-col items-center gap-2 bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-2xl p-4 transition-colors group"
+              class="flex flex-col items-center gap-2 bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-2xl p-4 transition-colors group focus:outline-none focus:ring-2 focus:ring-white/30"
             >
               <div class="w-full aspect-[4/3] rounded-xl overflow-hidden bg-black/30">
-                <img id="preview-after" class="w-full h-full object-cover" alt="After photo" />
+                <img id="preview-after" class="w-full h-full object-cover" alt="After photo preview" />
               </div>
               <div class="flex items-center gap-2 text-sm font-semibold text-gray-300 group-hover:text-white transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Save After
@@ -281,11 +307,10 @@ const base = import.meta.env.BASE_URL;
           </div>
         </div>
 
-        <!-- Pro options: Watermark + Dates -->
+        <!-- Pro options -->
         <div>
           <h3 class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-2">Pro Options</h3>
           <div class="space-y-3">
-            <!-- Watermark input -->
             <div class="bg-white/5 rounded-2xl p-4">
               <label for="watermark-input" class="block text-sm font-semibold text-gray-300 mb-2">Business watermark</label>
               <input
@@ -293,36 +318,35 @@ const base = import.meta.env.BASE_URL;
                 id="watermark-input"
                 placeholder="e.g. Mike's Handyman • 555-1234"
                 maxlength="60"
+                autocomplete="organization"
                 class="w-full bg-white/10 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#0066FF]/50 border border-white/10 focus:border-[#0066FF]/50 transition-all"
               />
               <p class="text-xs text-gray-500 mt-1.5">Appears on side-by-side exports. Saved for next time.</p>
             </div>
 
-            <!-- Date stamps toggle -->
             <label class="flex items-center justify-between bg-white/5 rounded-2xl p-4 cursor-pointer">
               <div>
-                <div class="text-sm font-semibold text-gray-300">Date stamps</div>
+                <div class="text-sm font-semibold text-gray-300" id="dates-label">Date stamps</div>
                 <div class="text-xs text-gray-500">Shows capture date on BEFORE/AFTER labels</div>
               </div>
               <div class="relative">
-                <input type="checkbox" id="toggle-dates" class="sr-only peer" checked />
-                <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-400 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0066FF] peer-checked:after:bg-white"></div>
+                <input type="checkbox" id="toggle-dates" class="sr-only peer" checked aria-labelledby="dates-label" />
+                <div class="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-white/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-400 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0066FF] peer-checked:after:bg-white"></div>
               </div>
             </label>
           </div>
         </div>
 
-        <!-- Combined export -->
+        <!-- Share export -->
         <div>
           <h3 class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-2">Share Comparison</h3>
           <div class="space-y-2">
-            <!-- Side-by-side -->
             <button
               id="btn-export-sidebyside"
-              class="w-full flex items-center gap-4 bg-[#0066FF]/10 hover:bg-[#0066FF]/20 active:bg-[#0066FF]/30 border border-[#0066FF]/30 rounded-2xl p-4 transition-colors text-left group"
+              class="w-full flex items-center gap-4 bg-[#0066FF]/10 hover:bg-[#0066FF]/20 active:bg-[#0066FF]/30 border border-[#0066FF]/30 rounded-2xl p-4 transition-colors text-left group focus:outline-none focus:ring-2 focus:ring-[#0066FF]/50"
             >
               <div class="w-11 h-11 bg-[#0066FF]/20 rounded-xl flex items-center justify-center shrink-0">
-                <svg class="w-6 h-6 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -330,18 +354,17 @@ const base = import.meta.env.BASE_URL;
                 <div class="font-bold text-white text-sm">Side-by-Side Image</div>
                 <div class="text-xs text-gray-400">One image, both photos — great for texting</div>
               </div>
-              <svg class="w-5 h-5 text-[#0066FF]/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-[#0066FF]/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             </button>
 
-            <!-- HTML Slider (for website/embed) -->
             <button
               id="btn-export-slider"
-              class="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-2xl p-4 transition-colors text-left group"
+              class="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-2xl p-4 transition-colors text-left group focus:outline-none focus:ring-2 focus:ring-white/30"
             >
               <div class="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
-                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
               </div>
@@ -349,22 +372,23 @@ const base = import.meta.env.BASE_URL;
                 <div class="font-semibold text-gray-300 text-sm">Slider for Website</div>
                 <div class="text-xs text-gray-500">HTML file — embed on your site</div>
               </div>
-              <svg class="w-5 h-5 text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             </button>
           </div>
         </div>
 
-        <!-- Status message -->
-        <div id="export-status" class="text-center text-sm text-green-400 hidden">
+        <!-- Status messages -->
+        <div id="export-status" class="text-center text-sm text-green-400 hidden" role="status" aria-live="polite">
           Saved! Check your photos or downloads.
         </div>
+        <div id="export-error" class="text-center text-sm text-red-400 hidden" role="alert" aria-live="assertive"></div>
 
         <!-- Start over -->
         <button
           id="btn-start-over"
-          class="w-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-semibold py-4 rounded-2xl transition-colors"
+          class="w-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-semibold py-4 rounded-2xl transition-colors focus:outline-none focus:ring-2 focus:ring-white/30"
         >
           Start Over
         </button>
@@ -372,21 +396,20 @@ const base = import.meta.env.BASE_URL;
     </div>
 
     <!-- ========== FULLSCREEN SLIDER OVERLAY ========== -->
-    <div id="fullscreen-slider" class="fixed inset-0 bg-black z-[100] hidden" style="touch-action:none;">
-      <!-- Close button — always visible, top-right -->
-      <button class="fs-close-btn absolute top-4 right-4 z-30 w-12 h-12 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors">
-        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+    <div id="fullscreen-slider" class="fixed inset-0 bg-black z-[100] hidden" style="touch-action:none;" role="dialog" aria-label="Fullscreen comparison">
+      <button class="fs-close-btn absolute top-4 right-4 z-30 w-12 h-12 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Close fullscreen">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
       <div class="fs-wrapper absolute overflow-hidden" style="line-height:0;">
-        <img class="fs-after-img block" alt="After" draggable="false" />
+        <img class="fs-after-img block" alt="After photo" draggable="false" />
         <div class="fs-overlay absolute top-0 left-0 w-1/2 h-full overflow-hidden">
-          <img class="fs-before-img absolute top-0 left-0 block" alt="Before" draggable="false" style="max-width:none;" />
+          <img class="fs-before-img absolute top-0 left-0 block" alt="Before photo" draggable="false" style="max-width:none;" />
         </div>
         <div class="fs-handle absolute top-0 bottom-0 left-1/2 w-1 -ml-0.5 bg-white cursor-ew-resize z-10" style="box-shadow:0 0 12px rgba(0,0,0,0.6);">
           <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center">
-            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l-3 3 3 3M16 9l3 3-3 3" />
             </svg>
           </div>
@@ -396,10 +419,18 @@ const base = import.meta.env.BASE_URL;
       </div>
     </div>
 
+    <!-- ========== LOADING OVERLAY ========== -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden flex items-center justify-center" role="status" aria-live="polite">
+      <div class="flex flex-col items-center gap-3">
+        <div class="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+        <p id="loading-text" class="text-white text-sm font-medium">Processing…</p>
+      </div>
+    </div>
+
     <script>
       import { startCamera, stopCamera, captureFrame, hasCameraSupport } from '../utils/camera';
       import { resizeImage } from '../utils/imageProcessing';
-      import { exportSideBySide, exportSingleImage, exportHtmlSlider, initInlineSlider, initFullscreenSlider } from '../utils/exporters';
+      import { exportSideBySide, exportSingleImage, exportHtmlSlider, initInlineSlider, initFullscreenSlider, destroyInlineSlider, destroyFullscreenSlider } from '../utils/exporters';
 
       // ---- State ----
       let beforeDataUrl: string | null = null;
@@ -426,19 +457,38 @@ const base = import.meta.env.BASE_URL;
       const previewBefore = document.getElementById('preview-before') as HTMLImageElement;
       const previewAfter = document.getElementById('preview-after') as HTMLImageElement;
       const exportStatus = document.getElementById('export-status')!;
+      const exportError = document.getElementById('export-error')!;
       const inlineSlider = document.getElementById('inline-slider')!;
 
       const watermarkInput = document.getElementById('watermark-input') as HTMLInputElement;
       const toggleDates = document.getElementById('toggle-dates') as HTMLInputElement;
 
-      // ---- Load saved watermark from localStorage ----
-      const savedWatermark = localStorage.getItem('ba-watermark');
-      if (savedWatermark) watermarkInput.value = savedWatermark;
+      const loadingOverlay = document.getElementById('loading-overlay')!;
+      const loadingText = document.getElementById('loading-text')!;
 
-      // Save watermark on change
+      // ---- Load saved watermark from localStorage ----
+      try {
+        const savedWatermark = localStorage.getItem('ba-watermark');
+        if (savedWatermark) watermarkInput.value = savedWatermark;
+      } catch {
+        // localStorage not available (private browsing, etc.)
+      }
+
       watermarkInput.addEventListener('input', () => {
-        localStorage.setItem('ba-watermark', watermarkInput.value);
+        try {
+          localStorage.setItem('ba-watermark', watermarkInput.value);
+        } catch { /* ignore storage errors */ }
       });
+
+      // ---- Loading overlay helpers ----
+      function showLoading(text = 'Processing…') {
+        loadingText.textContent = text;
+        loadingOverlay.classList.remove('hidden');
+      }
+
+      function hideLoading() {
+        loadingOverlay.classList.add('hidden');
+      }
 
       // ---- Screen management ----
       function showScreen(screen: HTMLElement) {
@@ -470,17 +520,32 @@ const base = import.meta.env.BASE_URL;
         videoAfter.srcObject = null;
       }
 
-      // ---- File upload helper ----
+      // ---- File upload helper (with validation) ----
       function handleFileUpload(input: HTMLInputElement): Promise<string> {
         return new Promise((resolve, reject) => {
           const file = input.files?.[0];
           if (!file) return reject(new Error('No file selected'));
 
+          // Validate file type
+          if (!file.type.startsWith('image/')) {
+            return reject(new Error('Please select an image file'));
+          }
+
+          // Warn on very large files (> 20MB)
+          if (file.size > 20 * 1024 * 1024) {
+            console.warn('Large file detected:', (file.size / 1024 / 1024).toFixed(1), 'MB');
+          }
+
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result as string);
-          reader.onerror = () => reject(reader.error);
+          reader.onerror = () => reject(new Error('Failed to read file'));
           reader.readAsDataURL(file);
         });
+      }
+
+      // ---- Reset file input value so re-selecting same file triggers change ----
+      function resetFileInput(input: HTMLInputElement) {
+        input.value = '';
       }
 
       // ---- DOM refs for before chooser ----
@@ -490,63 +555,74 @@ const base = import.meta.env.BASE_URL;
       // ---- Landing screen ----
       document.getElementById('btn-start')!.addEventListener('click', () => {
         showScreen(screenBefore);
-        // Show the chooser (upload or camera), not the camera directly
         beforeChooser.classList.remove('hidden');
         beforeCameraUI.classList.add('hidden');
       });
 
       // ---- Screen 1: Before Photo ----
 
-      // "Take with Camera" button — opens the camera viewfinder
       document.getElementById('btn-open-camera-before')!.addEventListener('click', async () => {
         beforeChooser.classList.add('hidden');
         beforeCameraUI.classList.remove('hidden');
-        await openCamera(videoBefore, beforeChooser); // fallback back to chooser if no camera
+        await openCamera(videoBefore, beforeChooser);
       });
 
-      // Back from camera to chooser
       document.getElementById('btn-back-to-chooser')!.addEventListener('click', () => {
         closeCamera();
         beforeCameraUI.classList.add('hidden');
         beforeChooser.classList.remove('hidden');
       });
 
-      // Back from chooser to landing
       document.getElementById('btn-back-to-landing')!.addEventListener('click', () => {
         showScreen(screenLanding);
       });
 
-      // Camera capture
       document.getElementById('btn-capture-before')!.addEventListener('click', async () => {
         if (!videoBefore.srcObject) return;
-        const raw = captureFrame(videoBefore);
-        beforeDataUrl = await resizeImage(raw, 1920);
-        beforeTimestamp = new Date();
-        closeCamera();
-        goToAfterScreen();
+        showLoading('Processing photo…');
+        try {
+          const raw = captureFrame(videoBefore);
+          beforeDataUrl = await resizeImage(raw, 1920);
+          beforeTimestamp = new Date();
+          closeCamera();
+          goToAfterScreen();
+        } catch (err) {
+          console.error('Capture failed:', err);
+          showError('Failed to capture photo. Please try again.');
+        } finally {
+          hideLoading();
+        }
       });
 
-      // File upload for before (all upload inputs)
+      // File upload listeners — reset value so same file re-triggers
       ['file-before', 'file-before-alt'].forEach((id) => {
-        document.getElementById(id)!.addEventListener('change', async (e) => {
+        const el = document.getElementById(id) as HTMLInputElement;
+        el.addEventListener('click', () => resetFileInput(el));
+        el.addEventListener('change', async (e) => {
+          const input = e.target as HTMLInputElement;
+          showLoading('Processing photo…');
           try {
-            const raw = await handleFileUpload(e.target as HTMLInputElement);
+            const raw = await handleFileUpload(input);
             beforeDataUrl = await resizeImage(raw, 1920);
             beforeTimestamp = new Date();
             closeCamera();
             goToAfterScreen();
-          } catch { /* user cancelled */ }
+          } catch (err: any) {
+            if (err?.message !== 'No file selected') {
+              showError(err?.message || 'Failed to load image');
+            }
+          } finally {
+            hideLoading();
+          }
         });
       });
 
       async function goToAfterScreen() {
         showScreen(screenAfter);
-        // Set onion skin image
         if (beforeDataUrl) {
           onionSkin.src = beforeDataUrl;
           onionSkin.classList.remove('hidden');
         }
-        // Show alignment hint, fade after 4 seconds
         const hint = document.getElementById('align-hint')!;
         hint.style.opacity = '1';
         setTimeout(() => { hint.style.opacity = '0'; }, 4000);
@@ -556,7 +632,6 @@ const base = import.meta.env.BASE_URL;
 
       // ---- Screen 2: Take After Photo (Onion Skin) ----
 
-      // Opacity slider
       opacitySlider.addEventListener('input', () => {
         const val = parseInt(opacitySlider.value);
         onionSkin.style.opacity = (val / 100).toString();
@@ -565,27 +640,43 @@ const base = import.meta.env.BASE_URL;
 
       document.getElementById('btn-capture-after')!.addEventListener('click', async () => {
         if (!videoAfter.srcObject) return;
-        const raw = captureFrame(videoAfter);
-        afterDataUrl = await resizeImage(raw, 1920);
-        afterTimestamp = new Date();
-        closeCamera();
-        goToExportScreen();
+        showLoading('Processing photo…');
+        try {
+          const raw = captureFrame(videoAfter);
+          afterDataUrl = await resizeImage(raw, 1920);
+          afterTimestamp = new Date();
+          closeCamera();
+          goToExportScreen();
+        } catch (err) {
+          console.error('Capture failed:', err);
+          showError('Failed to capture photo. Please try again.');
+        } finally {
+          hideLoading();
+        }
       });
 
-      // File upload for after (both inputs)
       ['file-after', 'file-after-alt'].forEach((id) => {
-        document.getElementById(id)!.addEventListener('change', async (e) => {
+        const el = document.getElementById(id) as HTMLInputElement;
+        el.addEventListener('click', () => resetFileInput(el));
+        el.addEventListener('change', async (e) => {
+          const input = e.target as HTMLInputElement;
+          showLoading('Processing photo…');
           try {
-            const raw = await handleFileUpload(e.target as HTMLInputElement);
+            const raw = await handleFileUpload(input);
             afterDataUrl = await resizeImage(raw, 1920);
             afterTimestamp = new Date();
             closeCamera();
             goToExportScreen();
-          } catch { /* user cancelled */ }
+          } catch (err: any) {
+            if (err?.message !== 'No file selected') {
+              showError(err?.message || 'Failed to load image');
+            }
+          } finally {
+            hideLoading();
+          }
         });
       });
 
-      // Retake before — go back to the chooser
       document.getElementById('btn-retake-before')!.addEventListener('click', () => {
         beforeDataUrl = null;
         beforeTimestamp = null;
@@ -600,8 +691,8 @@ const base = import.meta.env.BASE_URL;
         if (beforeDataUrl) previewBefore.src = beforeDataUrl;
         if (afterDataUrl) previewAfter.src = afterDataUrl;
         exportStatus.classList.add('hidden');
+        exportError.classList.add('hidden');
 
-        // Initialize the inline interactive slider
         if (beforeDataUrl && afterDataUrl) {
           initInlineSlider(inlineSlider, beforeDataUrl, afterDataUrl);
         }
@@ -609,19 +700,27 @@ const base = import.meta.env.BASE_URL;
 
       // ---- Screen 3: Export ----
 
-      // Helper: disable button during async action
+      function showError(message: string) {
+        exportError.textContent = message;
+        exportError.classList.remove('hidden');
+        setTimeout(() => exportError.classList.add('hidden'), 5000);
+      }
+
       async function withButton(btnId: string, action: () => Promise<void>) {
         const btn = document.getElementById(btnId)!;
+        const originalContent = btn.innerHTML;
         btn.classList.add('opacity-50', 'pointer-events-none');
         try {
           await action();
           flashStatus();
+        } catch (err: any) {
+          console.error('Export failed:', err);
+          showError(err?.message || 'Export failed. Please try again.');
         } finally {
           btn.classList.remove('opacity-50', 'pointer-events-none');
         }
       }
 
-      // Get current export options
       function getExportOptions() {
         return {
           watermark: watermarkInput.value,
@@ -631,19 +730,16 @@ const base = import.meta.env.BASE_URL;
         };
       }
 
-      // Save individual before photo
       document.getElementById('btn-save-before')!.addEventListener('click', () => {
         if (!beforeDataUrl) return;
         withButton('btn-save-before', () => exportSingleImage(beforeDataUrl!, 'before.jpg'));
       });
 
-      // Save individual after photo
       document.getElementById('btn-save-after')!.addEventListener('click', () => {
         if (!afterDataUrl) return;
         withButton('btn-save-after', () => exportSingleImage(afterDataUrl!, 'after.jpg'));
       });
 
-      // Side-by-side comparison (with watermark + dates)
       document.getElementById('btn-export-sidebyside')!.addEventListener('click', () => {
         if (!beforeDataUrl || !afterDataUrl) return;
         withButton('btn-export-sidebyside', () =>
@@ -651,7 +747,6 @@ const base = import.meta.env.BASE_URL;
         );
       });
 
-      // HTML slider file (for website embed)
       document.getElementById('btn-export-slider')!.addEventListener('click', () => {
         if (!beforeDataUrl || !afterDataUrl) return;
         withButton('btn-export-slider', () => exportHtmlSlider(beforeDataUrl!, afterDataUrl!));
@@ -662,29 +757,50 @@ const base = import.meta.env.BASE_URL;
         setTimeout(() => exportStatus.classList.add('hidden'), 4000);
       }
 
+      // ---- Keyboard support for inline slider ----
+      inlineSlider.addEventListener('keydown', (e) => {
+        const handle = inlineSlider.querySelector<HTMLElement>('.slider-handle')!;
+        const overlay = inlineSlider.querySelector<HTMLElement>('.slider-overlay')!;
+        const currentPct = parseFloat(handle.style.left) || 50;
+        const step = 2;
+        let newPct = currentPct;
+
+        if (e.key === 'ArrowLeft') { newPct = Math.max(0, currentPct - step); }
+        else if (e.key === 'ArrowRight') { newPct = Math.min(100, currentPct + step); }
+        else { return; }
+
+        e.preventDefault();
+        handle.style.left = newPct + '%';
+        overlay.style.width = newPct + '%';
+        inlineSlider.setAttribute('aria-valuenow', Math.round(newPct).toString());
+      });
+
       // ---- Fullscreen slider ----
-      // Double-tap or tap the expand icon on the inline slider to go fullscreen
+      // Double-tap or explicit fullscreen button
       let lastTapTime = 0;
       inlineSlider.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
-        // If they clicked the slider handle, don't open fullscreen
         if (target.closest('.slider-handle')) return;
 
         const now = Date.now();
         const isDoubleTap = (now - lastTapTime) < 350;
-        const isExpandIcon = target.closest('[class*="bottom-3 right-3"]');
 
-        if (isDoubleTap || isExpandIcon) {
+        if (isDoubleTap) {
           openFullscreen();
         }
         lastTapTime = now;
+      });
+
+      // Explicit fullscreen button
+      document.getElementById('btn-expand-fullscreen')!.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openFullscreen();
       });
 
       function openFullscreen() {
         if (!beforeDataUrl || !afterDataUrl) return;
         fullscreenSlider.classList.remove('hidden');
 
-        // Try native Fullscreen API
         if (fullscreenSlider.requestFullscreen) {
           fullscreenSlider.requestFullscreen().catch(() => {});
         }
@@ -699,22 +815,24 @@ const base = import.meta.env.BASE_URL;
         }
       }
 
-      // Also close on Escape key
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && !fullscreenSlider.classList.contains('hidden')) {
           closeFullscreen();
         }
       });
 
-      // Close when exiting fullscreen via browser gesture
       document.addEventListener('fullscreenchange', () => {
         if (!document.fullscreenElement && !fullscreenSlider.classList.contains('hidden')) {
           fullscreenSlider.classList.add('hidden');
         }
       });
 
-      // Start over
+      // ---- Start Over (with confirmation) ----
       document.getElementById('btn-start-over')!.addEventListener('click', () => {
+        if (beforeDataUrl || afterDataUrl) {
+          if (!confirm('Start over? Your current photos will be lost.')) return;
+        }
+
         beforeDataUrl = null;
         afterDataUrl = null;
         beforeTimestamp = null;
@@ -722,7 +840,10 @@ const base = import.meta.env.BASE_URL;
         closeCamera();
         previewBefore.src = '';
         previewAfter.src = '';
-        // Reset file inputs and before screen state
+        // Clean up slider listeners to prevent memory leaks
+        destroyInlineSlider();
+        destroyFullscreenSlider();
+        // Reset file inputs
         document.querySelectorAll<HTMLInputElement>('input[type="file"]').forEach((i) => (i.value = ''));
         beforeChooser.classList.remove('hidden');
         beforeCameraUI.classList.add('hidden');

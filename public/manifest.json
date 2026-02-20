@@ -1,13 +1,14 @@
 {
   "name": "Before/After Pro",
   "short_name": "B/A Pro",
-  "description": "Take perfectly aligned before & after photos with onion skin overlay",
+  "description": "Take perfectly aligned before & after photos with onion skin overlay. Free, private, works on any phone.",
   "start_url": "/beforeafter/",
   "scope": "/beforeafter/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#111827",
   "theme_color": "#0066FF",
+  "categories": ["photo", "utilities", "productivity"],
   "icons": [
     {
       "src": "/beforeafter/icon-192.svg",
@@ -19,7 +20,7 @@
       "src": "/beforeafter/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }

@@ -59,7 +59,8 @@ function downloadBlob(blob: Blob, filename: string): void {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // Small delay before revoking to ensure the download starts
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /**
@@ -71,6 +72,19 @@ async function saveImage(blob: Blob, filename: string): Promise<void> {
   if (!shared) {
     downloadBlob(blob, filename);
   }
+}
+
+/**
+ * Sanitize text for safe insertion into HTML attributes/content.
+ * Prevents XSS when embedding user-provided watermark text.
+ */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 /**
@@ -101,13 +115,19 @@ export async function exportSingleImage(
 /**
  * Export a self-contained HTML file with an interactive slider.
  * The HTML contains embedded base64 images and inline CSS/JS.
+ * All user content is sanitized to prevent XSS.
  */
 export async function exportHtmlSlider(
   beforeDataUrl: string,
   afterDataUrl: string
 ): Promise<void> {
-  const beforeBase64 = beforeDataUrl;
-  const afterBase64 = afterDataUrl;
+  // Validate that inputs are actual data URLs (not arbitrary strings)
+  if (!beforeDataUrl.startsWith('data:image/') || !afterDataUrl.startsWith('data:image/')) {
+    throw new Error('Invalid image data');
+  }
+
+  const beforeBase64 = escapeHtml(beforeDataUrl);
+  const afterBase64 = escapeHtml(afterDataUrl);
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -123,7 +143,7 @@ export async function exportHtmlSlider(
       align-items: center;
       min-height: 100vh;
       background: #1a1a1a;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     .slider-container {
       position: relative;
@@ -195,7 +215,7 @@ export async function exportHtmlSlider(
       padding: 8px 16px;
       background: rgba(0,0,0,0.7);
       color: #fff;
-      font: bold 14px Arial, sans-serif;
+      font: bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       border-radius: 6px;
       z-index: 5;
       letter-spacing: 1px;
@@ -213,7 +233,7 @@ export async function exportHtmlSlider(
   </style>
 </head>
 <body>
-  <div class="slider-container" id="container">
+  <div class="slider-container" id="container" role="slider" aria-label="Before and after comparison" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
     <img class="slider-img" id="afterImg" src="${afterBase64}" alt="After" draggable="false">
     <div class="slider-overlay" id="overlay">
       <img class="slider-img" id="beforeImg" src="${beforeBase64}" alt="Before" draggable="false">
@@ -243,6 +263,7 @@ export async function exportHtmlSlider(
         var pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
         handle.style.left = pct + '%';
         overlay.style.width = pct + '%';
+        container.setAttribute('aria-valuenow', Math.round(pct));
       }
 
       afterImg.addEventListener('load', matchSize);
@@ -250,7 +271,7 @@ export async function exportHtmlSlider(
       matchSize();
 
       handle.addEventListener('mousedown', function(e) { isDragging = true; e.preventDefault(); });
-      handle.addEventListener('touchstart', function(e) { isDragging = true; }, { passive: true });
+      handle.addEventListener('touchstart', function() { isDragging = true; }, { passive: true });
 
       document.addEventListener('mousemove', function(e) {
         if (isDragging) updateSlider(e.clientX);
@@ -263,6 +284,18 @@ export async function exportHtmlSlider(
       document.addEventListener('touchend', function() { isDragging = false; });
 
       container.addEventListener('click', function(e) { updateSlider(e.clientX); });
+
+      container.addEventListener('keydown', function(e) {
+        var currentPct = parseFloat(handle.style.left) || 50;
+        var step = 2;
+        if (e.key === 'ArrowLeft') { currentPct = Math.max(0, currentPct - step); }
+        else if (e.key === 'ArrowRight') { currentPct = Math.min(100, currentPct + step); }
+        else { return; }
+        e.preventDefault();
+        handle.style.left = currentPct + '%';
+        overlay.style.width = currentPct + '%';
+        container.setAttribute('aria-valuenow', Math.round(currentPct));
+      });
     })();
   </script>
 </body>
@@ -272,11 +305,23 @@ export async function exportHtmlSlider(
   downloadBlob(blob, 'before-after-slider.html');
 }
 
+// ---- Cleanup tracking for slider event listeners ----
+// Stores cleanup functions so we can remove document-level listeners
+// when re-initializing sliders (prevents memory leaks).
+let inlineSliderCleanup: (() => void) | null = null;
+let fullscreenSliderCleanup: (() => void) | null = null;
+
 /**
  * Initialize the inline interactive slider on the export screen.
- * This lets users see the comparison right in the app without downloading anything.
+ * Cleans up previous listeners before re-initializing.
  */
 export function initInlineSlider(container: HTMLElement, beforeSrc: string, afterSrc: string): void {
+  // Clean up previous instance to prevent memory leaks
+  if (inlineSliderCleanup) {
+    inlineSliderCleanup();
+    inlineSliderCleanup = null;
+  }
+
   const afterImg = container.querySelector<HTMLImageElement>('.slider-after-img')!;
   const beforeImg = container.querySelector<HTMLImageElement>('.slider-before-img')!;
   const overlay = container.querySelector<HTMLElement>('.slider-overlay')!;
@@ -291,28 +336,22 @@ export function initInlineSlider(container: HTMLElement, beforeSrc: string, afte
   container.style.touchAction = 'pan-y';
   handle.style.touchAction = 'none';
 
-  // Compute the display size: fill container width, but cap height at 55vh.
-  // Both images get identical explicit pixel dimensions — no CSS scaling tricks.
   function matchSize() {
     if (!afterImg.naturalWidth || !afterImg.naturalHeight) return;
 
-    // Reset container width so it can reflow to parent
     container.style.width = '';
     const containerW = container.parentElement?.offsetWidth || container.offsetWidth;
     const maxH = window.innerHeight * 0.55;
     const aspect = afterImg.naturalWidth / afterImg.naturalHeight;
 
-    // Start with full container width
     let w = containerW;
     let h = w / aspect;
 
-    // If too tall, cap height and shrink width to fit
     if (h > maxH) {
       h = maxH;
       w = h * aspect;
     }
 
-    // Set explicit pixel sizes on everything
     afterImg.style.width = w + 'px';
     afterImg.style.height = h + 'px';
     beforeImg.style.width = w + 'px';
@@ -322,14 +361,6 @@ export function initInlineSlider(container: HTMLElement, beforeSrc: string, afte
     container.style.width = w + 'px';
   }
 
-  afterImg.addEventListener('load', matchSize);
-  window.addEventListener('resize', matchSize);
-  // Also run on orientationchange for mobile rotation
-  window.addEventListener('orientationchange', () => {
-    setTimeout(matchSize, 150);
-  });
-  matchSize();
-
   function updateSlider(clientX: number) {
     const rect = container.getBoundingClientRect();
     const x = clientX - rect.left;
@@ -338,25 +369,65 @@ export function initInlineSlider(container: HTMLElement, beforeSrc: string, afte
     overlay.style.width = pct + '%';
   }
 
-  handle.addEventListener('mousedown', (e) => { isDragging = true; e.preventDefault(); });
-  handle.addEventListener('touchstart', () => { isDragging = true; }, { passive: true });
-
-  document.addEventListener('mousemove', (e) => {
-    if (isDragging) updateSlider(e.clientX);
-  });
-  document.addEventListener('touchmove', (e) => {
+  // Named handlers for proper cleanup
+  const onLoad = () => matchSize();
+  const onResize = () => matchSize();
+  const onOrientationChange = () => setTimeout(matchSize, 150);
+  const onMouseDown = (e: MouseEvent) => { isDragging = true; e.preventDefault(); };
+  const onTouchStart = () => { isDragging = true; };
+  const onMouseMove = (e: MouseEvent) => { if (isDragging) updateSlider(e.clientX); };
+  const onTouchMove = (e: TouchEvent) => {
     if (isDragging) { e.preventDefault(); updateSlider(e.touches[0].clientX); }
-  }, { passive: false });
+  };
+  const onMouseUp = () => { isDragging = false; };
+  const onTouchEnd = () => { isDragging = false; };
+  const onClick = (e: MouseEvent) => { updateSlider(e.clientX); };
 
-  document.addEventListener('mouseup', () => { isDragging = false; });
-  document.addEventListener('touchend', () => { isDragging = false; });
+  afterImg.addEventListener('load', onLoad);
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onOrientationChange);
 
-  container.addEventListener('click', (e) => { updateSlider(e.clientX); });
+  handle.addEventListener('mousedown', onMouseDown);
+  handle.addEventListener('touchstart', onTouchStart, { passive: true });
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('touchmove', onTouchMove, { passive: false });
+  document.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('touchend', onTouchEnd);
+
+  container.addEventListener('click', onClick);
+
+  matchSize();
+
+  // Store cleanup function to prevent memory leaks on re-init
+  inlineSliderCleanup = () => {
+    afterImg.removeEventListener('load', onLoad);
+    window.removeEventListener('resize', onResize);
+    window.removeEventListener('orientationchange', onOrientationChange);
+    handle.removeEventListener('mousedown', onMouseDown);
+    handle.removeEventListener('touchstart', onTouchStart);
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('touchend', onTouchEnd);
+    container.removeEventListener('click', onClick);
+    isDragging = false;
+  };
+}
+
+/**
+ * Clean up inline slider listeners. Called on "Start Over".
+ */
+export function destroyInlineSlider(): void {
+  if (inlineSliderCleanup) {
+    inlineSliderCleanup();
+    inlineSliderCleanup = null;
+  }
 }
 
 /**
  * Initialize the fullscreen slider overlay.
- * Reuses the same reveal-clip pattern as the inline slider.
+ * Cleans up previous listeners before re-initializing.
  */
 export function initFullscreenSlider(
   container: HTMLElement,
@@ -364,6 +435,12 @@ export function initFullscreenSlider(
   afterSrc: string,
   onClose: () => void
 ): void {
+  // Clean up previous instance to prevent memory leaks
+  if (fullscreenSliderCleanup) {
+    fullscreenSliderCleanup();
+    fullscreenSliderCleanup = null;
+  }
+
   const afterImg = container.querySelector<HTMLImageElement>('.fs-after-img')!;
   const beforeImg = container.querySelector<HTMLImageElement>('.fs-before-img')!;
   const overlay = container.querySelector<HTMLElement>('.fs-overlay')!;
@@ -383,7 +460,6 @@ export function initFullscreenSlider(
     const vh = window.innerHeight;
     const aspect = afterImg.naturalWidth / afterImg.naturalHeight;
 
-    // Fit image to viewport while maintaining aspect ratio
     let w = vw;
     let h = w / aspect;
     if (h > vh) {
@@ -391,7 +467,6 @@ export function initFullscreenSlider(
       w = h * aspect;
     }
 
-    // Center in viewport
     const left = (vw - w) / 2;
     const top = (vh - h) / 2;
 
@@ -408,11 +483,6 @@ export function initFullscreenSlider(
     overlay.style.height = h + 'px';
   }
 
-  afterImg.addEventListener('load', matchSize);
-  window.addEventListener('resize', matchSize);
-  window.addEventListener('orientationchange', () => setTimeout(matchSize, 150));
-  matchSize();
-
   function updateSlider(clientX: number) {
     const wrapper = container.querySelector<HTMLElement>('.fs-wrapper')!;
     const rect = wrapper.getBoundingClientRect();
@@ -422,21 +492,6 @@ export function initFullscreenSlider(
     overlay.style.width = pct + '%';
   }
 
-  handle.addEventListener('mousedown', (e) => { isDragging = true; e.preventDefault(); });
-  handle.addEventListener('touchstart', () => { isDragging = true; }, { passive: true });
-
-  const onMove = (e: MouseEvent) => { if (isDragging) updateSlider(e.clientX); };
-  const onTouchMove = (e: TouchEvent) => {
-    if (isDragging) { e.preventDefault(); updateSlider(e.touches[0].clientX); }
-  };
-  const onUp = () => { isDragging = false; };
-
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('touchmove', onTouchMove, { passive: false });
-  document.addEventListener('mouseup', onUp);
-  document.addEventListener('touchend', onUp);
-
-  // Auto-hide labels after 2 seconds
   let labelTimer: ReturnType<typeof setTimeout>;
   function showLabels() {
     labelBefore.style.opacity = '1';
@@ -449,39 +504,82 @@ export function initFullscreenSlider(
   }
   showLabels();
 
+  // Named handlers for proper cleanup
+  const onLoad = () => matchSize();
+  const onResize = () => matchSize();
+  const onOrientationChange = () => setTimeout(matchSize, 150);
+  const onHandleMouseDown = (e: MouseEvent) => { isDragging = true; e.preventDefault(); };
+  const onHandleTouchStart = () => { isDragging = true; };
+  const onMove = (e: MouseEvent) => { if (isDragging) updateSlider(e.clientX); };
+  const onDocTouchMove = (e: TouchEvent) => {
+    if (isDragging) { e.preventDefault(); updateSlider(e.touches[0].clientX); }
+  };
+  const onUp = () => { isDragging = false; };
+  const onTouchEndDoc = () => { isDragging = false; };
+
   function cleanup() {
+    afterImg.removeEventListener('load', onLoad);
+    window.removeEventListener('resize', onResize);
+    window.removeEventListener('orientationchange', onOrientationChange);
+    handle.removeEventListener('mousedown', onHandleMouseDown);
+    handle.removeEventListener('touchstart', onHandleTouchStart);
     document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchmove', onDocTouchMove);
     document.removeEventListener('mouseup', onUp);
-    document.removeEventListener('touchend', onUp);
+    document.removeEventListener('touchend', onTouchEndDoc);
+    if (closeBtn) closeBtn.removeEventListener('click', onCloseClick);
+    container.removeEventListener('click', onContainerClick);
+    wrapper.removeEventListener('click', onWrapperClick);
     clearTimeout(labelTimer);
+    isDragging = false;
+    fullscreenSliderCleanup = null;
     onClose();
   }
 
-  // Close button (top-right X)
+  afterImg.addEventListener('load', onLoad);
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onOrientationChange);
+  matchSize();
+
+  handle.addEventListener('mousedown', onHandleMouseDown);
+  handle.addEventListener('touchstart', onHandleTouchStart, { passive: true });
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onDocTouchMove, { passive: false });
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchend', onTouchEndDoc);
+
+  // Close button
   const closeBtn = container.querySelector<HTMLElement>('.fs-close-btn');
-  if (closeBtn) {
-    closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      cleanup();
-    });
-  }
+  const onCloseClick = (e: MouseEvent) => { e.stopPropagation(); cleanup(); };
+  if (closeBtn) closeBtn.addEventListener('click', onCloseClick);
 
-  // Tap the black bars (outside the image) to close
-  container.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    // Only close if they tapped the container background itself (black bars)
-    if (target === container) {
-      cleanup();
-    }
-  });
+  // Tap black bars to close
+  const onContainerClick = (e: MouseEvent) => {
+    if (e.target === container) cleanup();
+  };
+  container.addEventListener('click', onContainerClick);
 
-  // Clicking inside the wrapper moves the slider
+  // Click inside wrapper moves slider
   const wrapper = container.querySelector<HTMLElement>('.fs-wrapper')!;
-  wrapper.addEventListener('click', (e) => {
+  const onWrapperClick = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest('.fs-handle')) return;
     updateSlider(e.clientX);
     showLabels();
-  });
+  };
+  wrapper.addEventListener('click', onWrapperClick);
+
+  // Store cleanup for external use
+  fullscreenSliderCleanup = cleanup;
+}
+
+/**
+ * Clean up fullscreen slider listeners.
+ */
+export function destroyFullscreenSlider(): void {
+  if (fullscreenSliderCleanup) {
+    fullscreenSliderCleanup();
+    fullscreenSliderCleanup = null;
+  }
 }
