@@ -360,6 +360,22 @@ const canonicalUrl = 'https://vajradog.github.io/beforeafter/';
             </button>
 
             <button
+              id="btn-export-gif"
+              class="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-2xl p-4 transition-colors text-left group focus:outline-none focus:ring-2 focus:ring-white/30"
+            >
+              <div class="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                <span class="text-gray-400 font-bold text-xs tracking-wide">GIF</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-gray-300 text-sm">Slider GIF</div>
+                <div class="text-xs text-gray-500">Animated comparison — share anywhere</div>
+              </div>
+              <svg class="w-5 h-5 text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </button>
+
+            <button
               id="btn-export-slider"
               class="w-full flex items-center gap-4 bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-2xl p-4 transition-colors text-left group focus:outline-none focus:ring-2 focus:ring-white/30"
             >
@@ -430,7 +446,7 @@ const canonicalUrl = 'https://vajradog.github.io/beforeafter/';
     <script>
       import { startCamera, stopCamera, captureFrame, hasCameraSupport } from '../utils/camera';
       import { resizeImage } from '../utils/imageProcessing';
-      import { exportSideBySide, exportSingleImage, exportHtmlSlider, initInlineSlider, initFullscreenSlider, destroyInlineSlider, destroyFullscreenSlider } from '../utils/exporters';
+      import { exportSideBySide, exportSingleImage, exportHtmlSlider, exportGif, initInlineSlider, initFullscreenSlider, destroyInlineSlider, destroyFullscreenSlider } from '../utils/exporters';
 
       // ---- State ----
       let beforeDataUrl: string | null = null;
@@ -750,6 +766,23 @@ const canonicalUrl = 'https://vajradog.github.io/beforeafter/';
       document.getElementById('btn-export-slider')!.addEventListener('click', () => {
         if (!beforeDataUrl || !afterDataUrl) return;
         withButton('btn-export-slider', () => exportHtmlSlider(beforeDataUrl!, afterDataUrl!));
+      });
+
+      document.getElementById('btn-export-gif')!.addEventListener('click', async () => {
+        if (!beforeDataUrl || !afterDataUrl) return;
+        const btn = document.getElementById('btn-export-gif')!;
+        btn.classList.add('opacity-50', 'pointer-events-none');
+        showLoading('Creating GIF…');
+        try {
+          await exportGif(beforeDataUrl!, afterDataUrl!);
+          flashStatus();
+        } catch (err: any) {
+          console.error('GIF export failed:', err);
+          showError(err?.message || 'Failed to create GIF. Please try again.');
+        } finally {
+          hideLoading();
+          btn.classList.remove('opacity-50', 'pointer-events-none');
+        }
       });
 
       function flashStatus() {

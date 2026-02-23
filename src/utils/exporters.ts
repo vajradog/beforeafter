@@ -6,6 +6,7 @@
 
 import { createSideBySide } from './imageProcessing';
 import type { SideBySideOptions } from './imageProcessing';
+import { createSliderGif } from './gifExporter';
 
 /**
  * Convert a data URL to a Blob.
@@ -303,6 +304,17 @@ export async function exportHtmlSlider(
 
   const blob = new Blob([html], { type: 'text/html' });
   downloadBlob(blob, 'before-after-slider.html');
+}
+
+/**
+ * Export an animated GIF of the slider sweeping between before and after.
+ */
+export async function exportGif(
+  beforeDataUrl: string,
+  afterDataUrl: string
+): Promise<void> {
+  const blob = await createSliderGif(beforeDataUrl, afterDataUrl);
+  await saveImage(blob, 'before-after.gif');
 }
 
 // ---- Cleanup tracking for slider event listeners ----

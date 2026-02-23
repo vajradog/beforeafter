@@ -163,7 +163,7 @@ export async function resizeImage(
   return canvas.toDataURL('image/jpeg', quality);
 }
 
-function loadImg(src: string): Promise<HTMLImageElement> {
+export function loadImg(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
