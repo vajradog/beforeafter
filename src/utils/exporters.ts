@@ -6,7 +6,6 @@
 
 import { createSideBySide } from './imageProcessing';
 import type { SideBySideOptions } from './imageProcessing';
-import { createSliderGif } from './gifExporter';
 
 /**
  * Convert a data URL to a Blob.
@@ -67,8 +66,10 @@ function downloadBlob(blob: Blob, filename: string): void {
 /**
  * Save an image: uses Web Share API on mobile (so it goes to Photos),
  * falls back to download on desktop.
+ * Exported so callers can trigger it from a fresh user gesture (e.g. after
+ * long-running GIF creation where the original gesture has expired).
  */
-async function saveImage(blob: Blob, filename: string): Promise<void> {
+export async function saveImage(blob: Blob, filename: string): Promise<void> {
   const shared = await shareImageFile(blob, filename);
   if (!shared) {
     downloadBlob(blob, filename);
@@ -304,17 +305,6 @@ export async function exportHtmlSlider(
 
   const blob = new Blob([html], { type: 'text/html' });
   downloadBlob(blob, 'before-after-slider.html');
-}
-
-/**
- * Export an animated GIF of the slider sweeping between before and after.
- */
-export async function exportGif(
-  beforeDataUrl: string,
-  afterDataUrl: string
-): Promise<void> {
-  const blob = await createSliderGif(beforeDataUrl, afterDataUrl);
-  await saveImage(blob, 'before-after.gif');
 }
 
 // ---- Cleanup tracking for slider event listeners ----

@@ -446,7 +446,8 @@ const canonicalUrl = 'https://vajradog.github.io/beforeafter/';
     <script>
       import { startCamera, stopCamera, captureFrame, hasCameraSupport } from '../utils/camera';
       import { resizeImage } from '../utils/imageProcessing';
-      import { exportSideBySide, exportSingleImage, exportHtmlSlider, exportGif, initInlineSlider, initFullscreenSlider, destroyInlineSlider, destroyFullscreenSlider } from '../utils/exporters';
+      import { exportSideBySide, exportSingleImage, exportHtmlSlider, saveImage, initInlineSlider, initFullscreenSlider, destroyInlineSlider, destroyFullscreenSlider } from '../utils/exporters';
+      import { createSliderGif } from '../utils/gifExporter';
 
       // ---- State ----
       let beforeDataUrl: string | null = null;
@@ -774,16 +775,70 @@ const canonicalUrl = 'https://vajradog.github.io/beforeafter/';
         btn.classList.add('opacity-50', 'pointer-events-none');
         showLoading('Creating GIF…');
         try {
-          await exportGif(beforeDataUrl!, afterDataUrl!);
-          flashStatus();
+          const gifBlob = await createSliderGif(beforeDataUrl!, afterDataUrl!);
+
+          // navigator.share() requires a recent user gesture. GIF creation takes
+          // long enough to expire it, so on mobile we show a "Save" button that
+          // gives a fresh tap → fresh gesture → share sheet → Photos.
+          const canShare = navigator.canShare?.({ files: [new File([new Uint8Array(1)], 't.gif', { type: 'image/gif' })] });
+          if (canShare) {
+            showGifSavePrompt(gifBlob, btn);
+          } else {
+            // Desktop: download directly (no gesture needed)
+            await saveImage(gifBlob, 'before-after.gif');
+            hideLoading();
+            btn.classList.remove('opacity-50', 'pointer-events-none');
+            flashStatus();
+          }
         } catch (err: any) {
           console.error('GIF export failed:', err);
-          showError(err?.message || 'Failed to create GIF. Please try again.');
-        } finally {
           hideLoading();
           btn.classList.remove('opacity-50', 'pointer-events-none');
+          showError(err?.message || 'Failed to create GIF. Please try again.');
         }
       });
+
+      /** Show a "Save to Photos" prompt in the loading overlay so the user's
+       *  tap provides a fresh user gesture for navigator.share(). */
+      function showGifSavePrompt(blob: Blob, gifBtn: HTMLElement) {
+        const container = loadingOverlay.querySelector('.flex.flex-col') as HTMLElement;
+        const spinner = container.querySelector('.animate-spin') as HTMLElement;
+        spinner.style.display = 'none';
+        loadingText.textContent = 'GIF ready!';
+
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'mt-3 bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold py-4 px-8 rounded-2xl text-lg transition-colors active:scale-[0.97] transform';
+        saveBtn.textContent = 'Save to Photos';
+        container.appendChild(saveBtn);
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'mt-2 text-gray-400 text-sm underline';
+        cancelBtn.textContent = 'Cancel';
+        container.appendChild(cancelBtn);
+
+        function cleanup() {
+          saveBtn.remove();
+          cancelBtn.remove();
+          spinner.style.display = '';
+          hideLoading();
+          gifBtn.classList.remove('opacity-50', 'pointer-events-none');
+        }
+
+        saveBtn.addEventListener('click', async () => {
+          saveBtn.textContent = 'Saving…';
+          saveBtn.classList.add('opacity-50', 'pointer-events-none');
+          cancelBtn.remove();
+          try {
+            await saveImage(blob, 'before-after.gif');
+            flashStatus();
+          } catch (err: any) {
+            showError(err?.message || 'Failed to save GIF.');
+          }
+          cleanup();
+        }, { once: true });
+
+        cancelBtn.addEventListener('click', () => cleanup(), { once: true });
+      }
 
       function flashStatus() {
         exportStatus.classList.remove('hidden');
